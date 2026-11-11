@@ -1,0 +1,6 @@
+[submodule "external/qylock"]
+	path = external/qylock
+	url = https://github.com/Darkkal44/qylock
+[submodule "external/MikuPlymouth"]
+	path = external/MikuPlymouth
+	url = https://github.com/Thang1191/MikuPlymouth

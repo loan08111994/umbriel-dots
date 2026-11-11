@@ -1,0 +1,337 @@
+# Umbriel — cấu hình cho Noctalia shell
+#
+# Copy của examples/config.toml, đã tinh chỉnh cho Noctalia.
+# Lưu file là Umbriel tự reload. Kiểm tra lỗi: `umbriel config validate`
+# Backup bản gốc: ~/.config/umbriel/config.toml.bak
+#
+# Lưu ý: định nghĩa bảng [keybinds] sẽ THAY THẾ bộ keybind mặc định, nên
+# mọi bind đang dùng phải được liệt kê đầy đủ ở đây.
+#
+# Tài liệu: https://docs.noctalia.dev/umbriel/
+
+# ==============================================================================
+# General
+[general]
+autostart = ["noctalia"]
+# mod_key = "Super"          # mặc định là Super khi chạy native
+focus_on_activate = false    # true nếu muốn app tự focus khi request activation
+show_cheatsheet = false     # hiển thị cheat sheet keybind lúc khởi động (off nếu đã quen)
+
+# X11 cho game trên màn hình scaled (nếu chơi game trên HiDPI thì bật)
+# xwayland_native_resolution = true
+# xwayland_primary_output = "DP-1"
+
+# NVIDIA: mặc định bật workaround chống flicker. Nếu bị stutter thì tắt đi.
+# nvidia_sync_workaround = false
+
+# ==============================================================================
+# Environment — diễn ra cả với session services (Noctalia)
+[environment]
+ELECTRON_OZONE_PLATFORM_HINT = "auto"
+SDL_VIDEODRIVER = "wayland"
+
+# ==============================================================================
+# Ngắt laptop — tháo màn hình eDP-2 khỏi desktop khi đóng nắp, khôi phục khi mở
+[events]
+lid_close = "umbriel msg output-disable eDP-2"
+lid_open = "umbriel msg output-enable eDP-2"
+
+# ==============================================================================
+# Output — pin cấu hình màn hình (khớp niri cũ: 1080p@144, scale 1, vị trí 0,0)
+[output.eDP-2]
+mode = "1920x1080@144.003"
+position = [0, 0]
+scale = 1.0
+# vrr = "fullscreen"   # bật nếu muốn VRR cho game
+# hdr = "auto"
+
+# ==============================================================================
+# Appearance — bo góc, viền, blur (khuyến nghị của Noctalia)
+[appearance]
+prefer_no_csd = true
+border_width = 2
+corner_radius = 10
+
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 2
+radius = 3
+noise = 0.02
+brightness = 0.9
+contrast = 0.9
+saturation = 1.1
+
+# ==============================================================================
+# Input
+[input.keyboard]
+numlock_toggle = true
+
+# Touchpad — giữ nguyên hành vi niri cũ: vuốt tự nhiên (natural scroll)
+[input.touchpad]
+natural_scroll = true
+
+# Focus theo chuột (giống niri.focus-follows-mouse)
+# [input.focus]
+# follows_mouse = true
+
+# ==============================================================================
+# [KEYBINDS] đã reset về mặc định của Umbriel (bản package).
+# Keybinds
+# Defining this table replaces the built-in bind set, so every active bind that
+# should remain available is listed here.
+# Syntax: https://docs.noctalia.dev/umbriel/keybinds/
+# Actions: https://docs.noctalia.dev/umbriel/actions/
+[keybinds]
+
+# Applications and session
+"Mod+Return" = { action = "spawn kitty", repeat = false }
+"Mod" = "spawn noctalia msg panel-toggle launcher"
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+Escape" = "session-quit"
+"Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
+
+# Media, volume and brightness keys from any input device, routed through the
+# Noctalia shell so its OSDs show. Safe while the session is locked.
+# https://docs.noctalia.dev/noctalia/compositor-settings/umbriel
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+"XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down", allow_when_locked = true }
+
+# Focus and movement
+"Mod+Left" = "window-focus-left"
+"Mod+Down" = "window-focus-down"
+"Mod+Up" = "window-focus-up"
+"Mod+Right" = "window-focus-right"
+"Mod+H" = "window-focus-left"
+"Mod+J" = "window-focus-down"
+"Mod+K" = "window-focus-up"
+"Mod+L" = "window-focus-right"
+"Mod+F1" = "window-focus-next"
+"Mod+Shift+Left" = "column-move-left"
+"Mod+Shift+Down" = "window-move-down"
+"Mod+Shift+Up" = "window-move-up"
+"Mod+Shift+Right" = "column-move-right"
+
+# Window state and layout
+"Mod+T" = { action = "window-toggle-floating", repeat = false }
+"Mod+Shift+T" = { action = "window-focus-switch-floating", repeat = false }
+"Mod+P" = { action = "window-toggle-pinned", repeat = false }
+"Mod+M" = { action = "window-toggle-maximize-to-edges", repeat = false }
+"Mod+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+Ctrl+F" = { action = "window-toggle-maximize", repeat = false }
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Shift+R" = "window-cycle-primary-extent-back"
+"Mod+Minus" = "window-modify-primary-extent -0.02"
+"Mod+Equal" = "window-modify-primary-extent +0.02"
+"Mod+Ctrl+Minus" = "window-modify-secondary-extent -0.02"
+"Mod+Ctrl+Equal" = "window-modify-secondary-extent +0.02"
+"Mod+Comma" = "window-consume-left"
+"Mod+Period" = "window-consume-right"
+"Mod+Ctrl+Comma" = "window-consume-from-left"
+"Mod+Ctrl+Period" = "window-consume-from-right"
+# Needs layout.mode = "dwindle".
+# "Mod+Alt+T" = "layout-toggle-split"
+"Mod+W" = { action = "column-toggle-tabbed", repeat = false }
+"Mod+Alt+Right" = "column-focus-tab-next"
+"Mod+Alt+Left" = "column-focus-tab-previous"
+"Mod+WheelUp" = "window-focus-left"
+"Mod+WheelDown" = "window-focus-right"
+"Mod+O" = { action = "overview-toggle", repeat = false }
+
+# Workspaces
+# Move the whole workspace, retaining its name, layout, and windows.
+# "Mod+Ctrl+Page_Down" = "workspace-move-to-output-next"
+# "Mod+Ctrl+Page_Up" = "workspace-move-to-output-previous"
+# "Mod+Ctrl+W" = "workspace-move-to-output current WEB --output DP-1"
+"Mod+1" = "workspace-switch 1"
+"Mod+2" = "workspace-switch 2"
+"Mod+3" = "workspace-switch 3"
+"Mod+4" = "workspace-switch 4"
+"Mod+5" = "workspace-switch 5"
+"Mod+6" = "workspace-switch 6"
+"Mod+7" = "workspace-switch 7"
+"Mod+8" = "workspace-switch 8"
+"Mod+9" = "workspace-switch 9"
+"Mod+Shift+1" = "window-move-to-workspace 1"
+"Mod+Shift+2" = "window-move-to-workspace 2"
+"Mod+Shift+3" = "window-move-to-workspace 3"
+"Mod+Shift+4" = "window-move-to-workspace 4"
+"Mod+Shift+5" = "window-move-to-workspace 5"
+"Mod+Shift+6" = "window-move-to-workspace 6"
+"Mod+Shift+7" = "window-move-to-workspace 7"
+"Mod+Shift+8" = "window-move-to-workspace 8"
+"Mod+Shift+9" = "window-move-to-workspace 9"
+
+# Scratchpad
+"Mod+Shift+Space" = { action = "window-move-to-scratchpad", repeat = false }
+"Mod+Space" = "scratchpad-toggle"
+"Mod+Ctrl+Space" = { action = "window-restore-from-scratchpad", repeat = false }
+"Mod+Tab" = "scratchpad-focus-next"
+
+# ==============================================================================
+# [KEYBINDS BỔ SUNG] — muscle memory từ niri cũ, toàn bộ đặt trên phím trống
+# (không thay đổi bất kỳ bind mặc định nào ở trên)
+
+# Applications — giống niri
+"Mod+B" = { action = "spawn zen-browser", repeat = false }
+"Mod+C" = { action = "spawn code", repeat = false }
+"Mod+E" = { action = "spawn thunar", repeat = false }
+"Mod+Ctrl+M" = { action = "spawn spotify", repeat = false }
+"Mod+Shift+O" = { action = "spawn obsidian", repeat = false }
+
+# Noctalia panels — giống niri
+"Mod+V" = { action = "spawn noctalia msg panel-toggle clipboard", repeat = false }
+"Mod+D" = { action = "spawn noctalia msg panel-toggle control-center", repeat = false }
+"Mod+N" = { action = "spawn noctalia msg panel-toggle control-center notifications", repeat = false }
+"Mod+I" = "workspace-previous"
+"Mod+Shift+E" = { action = "spawn noctalia msg panel-toggle session", repeat = false }
+"Mod+Shift+Comma" = { action = "spawn noctalia msg settings-toggle", repeat = false }
+"Mod+Alt+Comma" = { action = "spawn noctalia msg panel-toggle wallpaper", repeat = false }
+"Mod+Alt+Period" = { action = "spawn noctalia msg panel-toggle launcher \"/emo \"", repeat = false }
+"Alt+Tab" = { action = "spawn noctalia msg window-switcher", repeat = false }
+
+# Khóa màn hình
+"Mod+Shift+L" = { action = "spawn noctalia msg session lock", repeat = false }
+"Mod+Alt+L" = { action = "spawn /home/nevil/.local/share/quickshell-lockscreen/lock.sh", repeat = false }
+
+# Chụp màn hình — như niri (Print / Ctrl+Print / Alt+Print)
+"Print" = { action = "spawn noctalia msg screenshot-region", repeat = false }
+"Mod+Print" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
+"Ctrl+Print" = { action = "spawn noctalia msg screenshot-fullscreen", repeat = false }
+"Alt+Print" = { action = "spawn noctalia msg screenshot-window", repeat = false }
+
+# Cheatsheet keybinds — như niri Super+Shift+Slash (show-hotkey-overlay)
+"Mod+Shift+Slash" = { action = "cheatsheet-toggle", repeat = false }
+
+# Workspace trước/sau — như niri Super+Page_Down/Up, Super+U/I
+"Mod+Page_Down" = "workspace-next"
+"Mod+Page_Up" = "workspace-previous"
+"Mod+U" = "workspace-next"
+"Mod+Ctrl+Page_Down" = "column-move-to-workspace-next"
+"Mod+Ctrl+Page_Up" = "column-move-to-workspace-previous"
+"Mod+Ctrl+U" = "column-move-to-workspace-next"
+"Mod+Ctrl+I" = "column-move-to-workspace-previous"
+# Đổi thứ tự workspace trong danh sách
+"Mod+Shift+Page_Down" = "workspace-move-down"
+"Mod+Shift+Page_Up" = "workspace-move-up"
+"Mod+Shift+U" = "workspace-move-down"
+"Mod+Shift+I" = "workspace-move-up"
+
+# Cột đầu/cuối — như niri Super+Home/End
+"Mod+Home" = "column-focus-first"
+"Mod+End" = "column-focus-last"
+"Mod+Ctrl+Home" = "column-move-to-first"
+"Mod+Ctrl+End" = "column-move-to-last"
+
+# Căn giữa cột — như niri Super+Shift+C
+"Mod+Shift+C" = "column-center"
+
+# Fullscreen — như niri Super+Shift+F
+"Mod+Shift+F" = { action = "window-toggle-fullscreen", repeat = false }
+
+# Consume-or-expel — như niri Super+BracketLeft/Right
+"Mod+BracketLeft" = "window-consume-or-expel-left"
+"Mod+BracketRight" = "window-consume-or-expel-right"
+
+# Đổi layout của workspace: scrolling -> dwindle -> master
+"Mod+Ctrl+L" = { action = "workspace-set-layout toggle scrolling dwindle master", repeat = false }
+
+# ==============================================================================
+# Layout
+[layout]
+# mode = "scrolling"          # "scrolling" | "dwindle" | "master" | "stacking"
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5
+
+# Nếu muốn dwindle (kiểu bspwm/Hyprland) cho workspace nào đó:
+# [[workspace]]
+# name = "dev"
+# layout = { mode = "dwindle" }
+
+# ==============================================================================
+# Window rules
+# Rules hợp theo thứ tự, rule sau đè rule trước.
+# Mọi cửa sổ đều lấy blur nền wallpaper
+[[window_rule]]
+blur = true
+
+# Cửa sổ settings Noctalia -> floating
+[[window_rule]]
+match.app_id = "^dev.noctalia.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+# Share picker
+[[window_rule]]
+match.app_id = "^dev.noctalia.UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+# Picture-in-Picture góc dưới phải
+[[window_rule]]
+match.title = "^(Picture-in-Picture|Picture in picture)$"
+default_floating = true
+default_maximize = false
+default_position = { x = 20, y = 20, anchor = "bottom_right" }
+
+# Notification toast: neo góc phải dưới, không ăn focus
+[[window_rule]]
+match.title = "^notificationtoasts_.+_desktop"
+default_position = { x = 0, y = 0, anchor = "bottom_right" }
+default_focused = false
+default_pinned = true
+
+# Steam game: giữ chuột trong cửa sổ (nhả bằng phím focus/workspace)
+# [[window_rule]]
+# match.app_id = "^steam_app_.*$"
+# confine_pointer = true
+
+# OBS render background kể cả khi ở workspace khác
+# [[window_rule]]
+# match.app_id = "^obs$"
+# background_render = true
+
+# ==============================================================================
+# Scratchpad — tương tự "quay cóp" màn hình phụ ẩn/hiện
+# Bỏ comment để tạo thêm scratchpad riêng cho app khác implicit "default".
+# [[scratchpad]]
+# name = "music"
+# spawn_when_empty = "spotify"
+
+# [[window_rule]]
+# match.app_id = "^spotify$"
+# default_scratchpad = "music"
+
+# [[window_rule]]
+# match.is_scratchpad = true
+# border_color_focused = "#E5C07BFF"
+# border_color_unfocused = "#5C4A2AFF"
+
+# ==============================================================================
+# Layer rules — blur cho các surface Noctalia
+# Bar/widgets nằm trên wallpaper (blur lại wallpaper đã cache).
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+
+# Panel/dock/notification/OSD mở đè lên cửa sổ -> blur nội dung thật phía sau.
+[[layer_rule]]
+match.namespace = "^noctalia-(notification|dock|panel|attached-panel|osd)$"
+blur_optimized = false
+
+# ==============================================================================
+# Hot corner: góc trên trái mở overview sau 500ms
+[hot_corners.top_left]
+enabled = true
+delay_ms = 500
+action = "overview-open"

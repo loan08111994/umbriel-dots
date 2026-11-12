@@ -298,19 +298,32 @@ log "Installing qylock..."
 QS_LOCK_DIR="$HOME/.local/share/quickshell-lockscreen"
 readonly QS_LOCK_DIR
 if [ -x "$QS_LOCK_DIR/lock.sh" ] && [ -L "$QS_LOCK_DIR/themes_link" ]; then
-    ok "qylock lockscreen đã cài ($QS_LOCK_DIR) — bỏ qua quickshell.sh"
+    ok "qylock lockscreen đã cài ($QS_LOCK_DIR) — bỏ qua"
     ok "  themes_link → $(readlink "$QS_LOCK_DIR/themes_link")"
-    ok "  đổi theme: ~/.config/qylock/theme hoặc chạy lại ./external/qylock/quickshell.sh"
-elif [ -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
-    if [ "$ASSUME_YES" -eq 1 ]; then
-        # Non-interactive: pipe 'y' cho prompt proceed; theme chọn bằng fzf sẽ
-        # không chạy được (không TTY) → script upstream tự default về 'nier-automata'.
-        # Đổi theme sau: chạy lại ./external/qylock/quickshell.sh hoặc sửa ~/.config/qylock/theme
-        printf 'y\n\n\n\n\n' | bash "$EXTERNAL_DIR/qylock/quickshell.sh" \
-            || warn "qylock install failed — run it manually later"
+elif [ -f "$EXTERNAL_DIR/qylock/quickshell-lockscreen/lock.sh" ]; then
+    # Cài thẳng KHÔNG hỏi gì — replicate đúng các bước cơ học của quickshell.sh
+    # (copy wrapper + themes_link + ghi theme). Upstream chỉ hỏi tương tác để
+    # CHỌN theme qua fzf — repo đã track theme rồi nên không cần hỏi.
+    # Muốn chọn theme khác tương tác: chạy ./external/qylock/quickshell.sh
+    QS_THEME="$(cat "$CONFIGS_DIR/qylock/theme" 2>/dev/null || echo nier-automata)"
+    readonly QS_THEME
+    log "Installing lockscreen with repo theme: $QS_THEME"
+    rm -rf "$QS_LOCK_DIR"
+    if cp -r "$EXTERNAL_DIR/qylock/quickshell-lockscreen" "$QS_LOCK_DIR" \
+        && ln -sfn "$EXTERNAL_DIR/qylock/themes" "$QS_LOCK_DIR/themes_link" \
+        && chmod +x "$QS_LOCK_DIR/lock.sh" \
+        && sed -i "s|export QS_THEME=.*$|export QS_THEME=\"\${1:-$QS_THEME}\"|" "$QS_LOCK_DIR/lock.sh"; then
+        ok "qylock installed — lock.sh default theme: $QS_THEME"
     else
-        bash "$EXTERNAL_DIR/qylock/quickshell.sh" || warn "qylock install failed — run it manually later"
+        warn "qylock install thất bại — chạy tay: ./external/qylock/quickshell.sh"
     fi
+    # Theme có submenu variant (terraria/Genshin/clockwork/man-bicycle/osumania)
+    # cần chọn thời gian/random — ở đây dùng default upstream; chỉnh tay trong
+    # $QS_LOCK_DIR/themes_link/$QS_THEME/theme.conf nếu muốn.
+    case "$QS_THEME" in
+        terraria|Genshin|clockwork/*|man-bicycle|osumania)
+            warn "Theme '$QS_THEME' có variant options — dùng default upstream. Chỉnh: themes_link/$QS_THEME/theme.conf" ;;
+    esac
 else
     warn "qylock submodule not initialized. Run: git submodule update --init --recursive"
 fi

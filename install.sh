@@ -61,36 +61,58 @@ command -v umbriel >/dev/null || warn "umbriel not found in PATH — install it 
 command -v noctalia >/dev/null || warn "noctalia not found in PATH — install it first (https://github.com/noctalia-dev/noctalia-shell)"
 
 # ==============================================================================
-# Step 0.5: Optional — cài packages còn thiếu qua paru (AUR helper)
+# Step 0.5: Optional — cài packages còn thiếu
+# Chiến lược: pacman (official repos) trước, paru chỉ lo phần AUR còn thiếu
 # ==============================================================================
-read -rp "Install missing packages via paru? [y/N] " instpkgs
+read -rp "Install missing packages? [y/N] " instpkgs
 if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
-    if ! command -v paru >/dev/null 2>&1; then
-        warn "paru not found — cài trước: sudo pacman -S paru (yay cũng thay được nhưng script ưu tiên paru)"
-    else
-        # Repo packages: binary → package name (nvim → neovim, shellcheck → shellcheck...)
-        readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
-        readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
-        MISSING_PKGS=()
-        for i in "${!BIN_LIST[@]}"; do
-            command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
-        done
-        if [ "${#MISSING_PKGS[@]}" -gt 0 ]; then
-            log "Cài repo packages: ${MISSING_PKGS[*]}"
-            paru -S --needed "${MISSING_PKGS[@]}" || warn "Một số repo packages cài lỗi — xem output ở trên"
-        else
-            ok "Repo packages đủ hết rồi"
-        fi
+    # --- 1) Repo packages qua pacman ---
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
+    MISSING_PKGS=()
+    for i in "${!BIN_LIST[@]}"; do
+        command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
+    done
 
-        # AUR packages: umbriel + noctalia stack (đi từng package, lỗi thì tiếp tục)
-        readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
-        for p in "${AUR_PKGS[@]}"; do
-            if pacman -Q "$p" >/dev/null 2>&1; then
-                ok "$p đã có sẵn"
+    if [ "${#MISSING_PKGS[@]}" -eq 0 ]; then
+        ok "Repo packages đủ hết rồi"
+    else
+        log "Repo packages thiếu: ${MISSING_PKGS[*]}"
+        if sudo pacman -S --needed "${MISSING_PKGS[@]}"; then
+            ok "Repo packages đã cài xong"
+        else
+            warn "pacman cài lỗi — xem output ở trên, thiếu gì sẽ phải cài tay"
+        fi
+    fi
+
+    # --- 2) AUR packages qua paru (những gì pacman không có) ---
+    readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
+    AUR_MISSING=()
+    for p in "${AUR_PKGS[@]}"; do
+        pacman -Q "$p" >/dev/null 2>&1 || AUR_MISSING+=("$p")
+    done
+
+    if [ "${#AUR_MISSING[@]}" -eq 0 ]; then
+        ok "AUR packages đủ hết rồi"
+    elif ! command -v paru >/dev/null 2>&1; then
+        warn "Thiếu AUR packages: ${AUR_MISSING[*]}"
+        read -rp "Thử cài paru qua pacman rồi chạy tiếp? [y/N] " getparu
+        if [[ "${getparu:-}" =~ ^[Yy]$ ]]; then
+            if sudo pacman -S --needed paru; then
+                for p in "${AUR_MISSING[@]}"; do
+                    log "Cài AUR: $p"
+                    paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
+                done
             else
-                log "Cài AUR: $p"
-                paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
+                warn "pacman không có paru — cài tay: paru -S paru-bin (AUR) hoặc dùng yay thay thế"
             fi
+        else
+            warn "Bỏ qua — còn thiếu AUR packages: ${AUR_MISSING[*]}"
+        fi
+    else
+        for p in "${AUR_MISSING[@]}"; do
+            log "Cài AUR: $p"
+            paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
         done
     fi
 fi

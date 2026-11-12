@@ -58,9 +58,10 @@ umbriel-dots/
 git clone --recurse-submodules https://github.com/loan08111994/umbriel-dots
 cd umbriel-dots
 
-# 2. Cài deps — chạy install.sh nó sẽ tự hỏi và cài qua paru, hoặc tay:
-paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell \
-    neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck
+# 2. Cài deps — install.sh sẽ tự hỏi: pacman trước cho repo packages,
+#    paru chỉ lo phần AUR còn thiếu. Cài tay thì:
+sudo pacman -S --needed neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck
+paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell
 
 # 3. Chạy installer (tự backup config cũ vào ~/.config-backup-<timestamp>)
 ./install.sh

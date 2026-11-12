@@ -43,6 +43,7 @@ readonly EXTRA_FILES=(
     "$HOME/.gtkrc-2.0:$REPO_DIR/configs/gtkrc-2.0"
     "$HOME/.local/state/noctalia/settings.toml:$REPO_DIR/configs/noctalia-state/settings.toml"
     "$HOME/.local/state/noctalia/state.toml:$REPO_DIR/configs/noctalia-state/state.toml"
+    "$HOME/.config/kdeglobals:$REPO_DIR/configs/kdeglobals"
 )
 
 readonly GREEN='\033[0;32m'
@@ -76,6 +77,12 @@ done
 if [ -d "$HOME/Pictures/Pfps-and-logos" ]; then
     mkdir -p "$REPO_DIR/wallpapers/Pfps-and-logos"
     rsync -a --delete "$HOME/Pictures/Pfps-and-logos/" "$REPO_DIR/wallpapers/Pfps-and-logos/"
+fi
+
+# Icon theme YAMIS (mirror ngược — ít đổi nhưng giữ repo luôn khớp máy)
+if [ -d "$HOME/.local/share/icons/YAMIS" ]; then
+    mkdir -p "$REPO_DIR/icons/YAMIS"
+    rsync -a --delete "$HOME/.local/share/icons/YAMIS/" "$REPO_DIR/icons/YAMIS/"
 fi
 
 # ------------------------------------------------------------------------------

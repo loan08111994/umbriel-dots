@@ -67,8 +67,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 read -rp "Install missing packages? [y/N] " instpkgs
 if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -147,6 +147,7 @@ done
 # Loose files
 [ -f "$HOME/.config/starship.toml" ] && mv "$HOME/.config/starship.toml" "$BACKUP_DIR/"
 [ -f "$HOME/.gtkrc-2.0" ] && mv "$HOME/.gtkrc-2.0" "$BACKUP_DIR/"
+[ -f "$HOME/.config/kdeglobals" ] && mv "$HOME/.config/kdeglobals" "$BACKUP_DIR/"
 # Noctalia state (settings thật sự của `noctalia settings` UI)
 if [ -d "$HOME/.local/state/noctalia" ]; then
     mkdir -p "$BACKUP_DIR/noctalia-state"
@@ -175,6 +176,21 @@ mkdir -p "$HOME/.local/state/noctalia"
 cp "$CONFIGS_DIR/noctalia-state/settings.toml" "$HOME/.local/state/noctalia/settings.toml" 2>/dev/null \
     || warn "noctalia-state/settings.toml missing"
 cp "$CONFIGS_DIR/noctalia-state/state.toml" "$HOME/.local/state/noctalia/state.toml" 2>/dev/null || true
+
+# Icon theme YAMIS (yet-another-monochrome) → ~/.local/share/icons
+if [ -d "$REPO_DIR/icons/YAMIS" ]; then
+    log "Installing YAMIS icon theme..."
+    mkdir -p "$HOME/.local/share/icons"
+    rsync -a --delete "$REPO_DIR/icons/YAMIS/" "$HOME/.local/share/icons/YAMIS/"
+    ok "$HOME/.local/share/icons/YAMIS"
+fi
+
+# kdeglobals: [Icons] chỉ icon theme cho Qt/KDE apps (GTK đã set trong settings.ini)
+if [ -f "$CONFIGS_DIR/kdeglobals" ]; then
+    cp "$CONFIGS_DIR/kdeglobals" "$HOME/.config/kdeglobals"
+    ok "$HOME/.config/kdeglobals"
+fi
+
 ok "Deploy done"
 
 # ==============================================================================

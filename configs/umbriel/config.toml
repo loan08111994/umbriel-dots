@@ -29,6 +29,8 @@ show_cheatsheet = false     # hiển thị cheat sheet keybind lúc khởi độ
 [environment]
 ELECTRON_OZONE_PLATFORM_HINT = "auto"
 SDL_VIDEODRIVER = "wayland"
+# Qt apps đọc settings.ini của GTK3 → dùng chung icon theme YAMIS với GTK
+QT_QPA_PLATFORMTHEME = "gtk3"
 
 # ==============================================================================
 # Ngắt laptop — tháo màn hình eDP-2 khỏi desktop khi đóng nắp, khôi phục khi mở

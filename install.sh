@@ -8,6 +8,19 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# --- Log file — mọi output (kể cả lỗi, prompt) ghi vào ~/.cache/umbriel-dots ---
+# ~/.cache nằm ngoài repo → không bị sync.sh nhét vào git. Log cũ >30 ngày tự xóa.
+LOG_DIR="$HOME/.cache/umbriel-dots"
+readonly LOG_DIR
+mkdir -p "$LOG_DIR"
+find "$LOG_DIR" -name '*.log' -mtime +30 -delete 2>/dev/null || true
+LOG_FILE="$LOG_DIR/install-$(date +%Y-%m-%d-%H%M%S).log"
+readonly LOG_FILE
+set -E   # ERR trap chạy cả trong hàm/subshell
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+trap 'echo -e "${RED}✘ Script FAILED tại dòng $LINENO (exit=$?) — xem log: $LOG_FILE${NC}" >&2' ERR
+
 # --- Paths ---
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_DIR
@@ -29,6 +42,8 @@ log()  { echo -e "${CYAN}::${NC} $*"; }
 ok()   { echo -e "${GREEN}✔${NC} $*"; }
 warn() { echo -e "${YELLOW}!${NC} $*"; }
 die()  { echo -e "${RED}✘${NC} $*" >&2; exit 1; }
+
+log "Log file: $LOG_FILE"
 
 # --- Flags ---
 ASSUME_YES=0
@@ -473,3 +488,4 @@ echo -e "  • Umbriel config: ~/.config/umbriel/config.toml  (auto-reloads)"
 echo -e "  • Noctalia UI:    noctalia settings"
 echo -e "  • NOTE: hardcoded /home/nevil in deployed configs was rewritten to your"
 echo -e "          \$HOME automatically (including the Mod+Alt+L lock.sh path)."
+echo -e "  • Full log: ${CYAN}$LOG_FILE${NC}"

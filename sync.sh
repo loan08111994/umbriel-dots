@@ -12,6 +12,18 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# --- Log file — mọi output ghi vào ~/.cache/umbriel-dots (ngoài repo) ---
+LOG_DIR="$HOME/.cache/umbriel-dots"
+readonly LOG_DIR
+mkdir -p "$LOG_DIR"
+find "$LOG_DIR" -name '*.log' -mtime +30 -delete 2>/dev/null || true
+LOG_FILE="$LOG_DIR/sync-$(date +%Y-%m-%d-%H%M%S).log"
+readonly LOG_FILE
+set -E
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+trap 'echo "✘ sync FAILED tại dòng $LINENO (exit=$?) — xem log: $LOG_FILE" >&2' ERR
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_DIR
 readonly CONFIGS_DIR="$REPO_DIR/configs"
@@ -121,3 +133,4 @@ MSG="${MSG:-$DEFAULT_MSG}"
 git commit -m "$MSG"
 git push
 ok "Đã push lên GitHub — repo giờ khớp với máy thật."
+ok "Log: $LOG_FILE"

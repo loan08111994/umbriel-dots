@@ -527,20 +527,55 @@ if pacman -Q sddm >/dev/null 2>&1; then
     # Login theme = cùng theme với lockscreen (đã restore từ repo ở trên) — tự động
     SDDM_THEME="$(cat "$HOME/.config/qylock/theme" 2>/dev/null || echo pixel-dusk-city)"
     log "SDDM theme sẽ dùng: $SDDM_THEME"
+
+    # 1) Theme files — chỉ copy khi chưa có (giữ bản user đã chỉnh nếu có)
     if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
-        ok "SDDM theme $SDDM_THEME đã có sẵn"
+        ok "Theme files đã có trong /usr/share/sddm/themes"
     elif [ -d "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" ]; then
-        log "Installing $SDDM_THEME SDDM login theme..."
-        if sudo cp -a "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" /usr/share/sddm/themes/ \
-            && ( mkdir -p /etc/sddm.conf.d \
-                && printf '[Theme]\nCurrent=%s\n' "$SDDM_THEME" \
-                | sudo tee /etc/sddm.conf.d/theme.conf >/dev/null ); then
-            ok "SDDM login theme installed + set làm mặc định ($SDDM_THEME)"
+        log "Copying theme files..."
+        if sudo mkdir -p /usr/share/sddm/themes \
+            && sudo cp -a "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" /usr/share/sddm/themes/; then
+            ok "Theme files copied"
         else
-            warn "Thất bại — làm tay: sudo cp -a external/qylock/themes/$SDDM_THEME /usr/share/sddm/themes/"
+            warn "Copy thất bại — làm tay: sudo cp -a external/qylock/themes/$SDDM_THEME /usr/share/sddm/themes/"
         fi
     else
-        warn "Theme '$SDDM_THEME' không có trong qylock submodule — bỏ qua cài SDDM theme"
+        warn "Theme '$SDDM_THEME' không có trong qylock submodule"
+    fi
+
+    # 2) theme.conf — LUÔN đảm bảo Current=$SDDM_THEME (khác trước đây: chỉ ghi khi
+    #    copy theme → nếu lần chạy trước copy xong nhưng ghi conf fail (sudo hết
+    #    hạn), lần sau skip luôn → SDDM vĩnh viễn dùng theme default).
+    #    Logic theo upstream sddm.sh: sed in-place, không clobber setting khác.
+    QY_SDDM_CONF="/etc/sddm.conf.d/theme.conf"
+    if sudo mkdir -p /etc/sddm.conf.d && [ ! -f "$QY_SDDM_CONF" ]; then
+        if printf '[Theme]\nCurrent=%s\n' "$SDDM_THEME" | sudo tee "$QY_SDDM_CONF" >/dev/null; then
+            ok "theme.conf created → $SDDM_THEME"
+        else
+            warn "Không ghi được $QY_SDDM_CONF — làm tay: echo '[Theme]' ... Current=$SDDM_THEME"
+        fi
+    elif grep -q '^Current=' "$QY_SDDM_CONF" 2>/dev/null; then
+        if grep -q "^Current=$SDDM_THEME\$" "$QY_SDDM_CONF"; then
+            ok "theme.conf đã trỏ đúng $SDDM_THEME"
+        else
+            if sudo sed -i "s|^Current=.*|Current=$SDDM_THEME|" "$QY_SDDM_CONF"; then
+                ok "theme.conf updated → $SDDM_THEME"
+            else
+                warn "Không sửa được $QY_SDDM_CONF"
+            fi
+        fi
+    elif grep -q '^\[Theme\]' "$QY_SDDM_CONF" 2>/dev/null; then
+        if sudo sed -i "/^\[Theme\]/a Current=$SDDM_THEME" "$QY_SDDM_CONF"; then
+            ok "theme.conf → $SDDM_THEME (chèn vào section [Theme] có sẵn)"
+        else
+            warn "Không chèn được Current= vào $QY_SDDM_CONF"
+        fi
+    else
+        if printf '[Theme]\nCurrent=%s\n' "$SDDM_THEME" | sudo tee "$QY_SDDM_CONF" >/dev/null; then
+            ok "theme.conf → $SDDM_THEME"
+        else
+            warn "Không ghi được $QY_SDDM_CONF"
+        fi
     fi
 else
     warn "sddm chưa cài — bỏ qua Step 7 (cài sddm rồi chạy lại để có login theme)"

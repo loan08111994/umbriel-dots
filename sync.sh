@@ -31,6 +31,7 @@ readonly ITEMS=(
     mpd
     mpv
     fish
+    fcitx5
     hypr
     niri
     gtk-3.0
@@ -44,6 +45,8 @@ readonly EXTRA_FILES=(
     "$HOME/.local/state/noctalia/settings.toml:$REPO_DIR/configs/noctalia-state/settings.toml"
     "$HOME/.local/state/noctalia/state.toml:$REPO_DIR/configs/noctalia-state/state.toml"
     "$HOME/.config/kdeglobals:$REPO_DIR/configs/kdeglobals"
+    "$HOME/.zshrc:$REPO_DIR/configs/zsh/zshrc"
+    "$HOME/.p10k.zsh:$REPO_DIR/configs/zsh/p10k.zsh"
 )
 
 readonly GREEN='\033[0;32m'

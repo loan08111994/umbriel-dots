@@ -17,6 +17,8 @@
 - [Overview](#-overview)
 - [Cấu trúc repo](#-cấu-trúc-repo)
 - [Quick Start](#-quick-start)
+- [Bộ gõ tiếng Việt (fcitx5 + Lotus)](#️-bộ-gõ-tiếng-việt-fcitx5--lotus)
+- [Limine theme](#-limine-theme-bootloader)
 - [Keybinds chính](#-keybinds-chính)
 - [Credits](#-credits)
 
@@ -29,6 +31,8 @@ Dotfile cá nhân được extract trực tiếp từ máy đang chạy, gồm:
 - **Umbriel** — compositor native của hệ Noctalia ([docs](https://docs.noctalia.dev/umbriel/)), config đã tinh chỉnh keybinds, autostart Noctalia, NVIDIA workaround.
   > 🌈 **Border màu theo wallpaper:** template chính chủ của Noctalia (Settings → Templates → Compositors → Umbriel) sinh `~/.config/umbriel/noctalia.toml` từ palette matugen của wallpaper — viền focus, unfocus, title bar, overview tint tự đổi màu mỗi lần đổi wallpaper. File được umbriel include qua `[include.optional]` và **tự reload** khi Noctalia render lại.
 - **Icon theme YAMIS** (yet-another-monochrome-icon-set, by `dirn` — repo gốc không còn public, đã track trong `icons/YAMIS/`) — mặc định cho GTK3/4 (`settings.ini`) và Qt (qua `QT_QPA_PLATFORMTHEME=gtk3` + `[Icons]` trong kdeglobals). `install.sh` chép vào `~/.local/share/icons`.
+- **fcitx5 + Lotus** — bộ gõ tiếng Việt Wayland-native ([fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus), AUR) — profile trong repo đã bật `lotus` làm IM mặc định; env vars trong fish config. Xem section riêng bên dưới.
+- **zsh + Powerlevel10k** — theme prompt (repo CachyOS `zsh-theme-powerlevel10k` + `cachyos-zsh-config`); `configs/zsh/` track `.zshrc` + `.p10k.zsh`, deploy vào `$HOME`.
 - **Noctalia shell v5** — settings + user templates + toàn bộ 9 plugins (catwalk, clipper, custom-sticker, dns-switcher, pomodoro, screen-recorder, timer, usb-drive-manager, video-wallpaper).
   > ⚠️ Settings thật của Noctalia nằm ở `~/.local/state/noctalia/settings.toml` (UI `noctalia settings` ghi vào đây), còn `~/.config/noctalia/settings.toml` chỉ là override layer. Repo này lưu cả hai: `configs/noctalia/` (override) + `configs/noctalia-state/` (settings thật).
 - **qylock** — lockscreen Quickshell anime-style, bind `Mod+Alt+L`.
@@ -42,9 +46,10 @@ umbriel-dots/
 ├── configs/              # copy trực tiếp từ ~/.config trên máy gốc
 │   ├── umbriel/          # config.toml — compositor (tự reload khi sửa)
 │   ├── noctalia/         # settings.toml + user-templates.toml + plugins/
-│   ├── kitty/ fastfetch/ cava/ btop/ nvim/ yazi/ rmpc/ mpd/ mpv/ fish/
+│   ├── kitty/ fastfetch/ cava/ btop/ nvim/ yazi/ rmpc/ mpd/ mpv/ fish/ fcitx5/
 │   ├── hypr/ niri/       # fallback nếu dùng compositor khác
 │   ├── gtk-3.0/ gtk-4.0/ # noctalia.css theme
+│   ├── zsh/              # .zshrc + .p10k.zsh (Powerlevel10k) — deploy vào $HOME
 │   └── starship.toml
 ├── wallpapers/           # logo mặc định + nguồn wallpapers
 │   ├── Pfps-and-logos/   # avatar mèo khóc + icon.png (lockscreen sticker)
@@ -74,9 +79,10 @@ cd umbriel-dots
 # 2. Cài deps — install.sh sẽ tự hỏi: pacman trước cho repo packages,
 #    paru chỉ lo phần AUR còn thiếu. Cài tay thì:
 sudo pacman -S --needed umbriel noctalia xdg-desktop-portal-umbriel quickshell xwayland-satellite nwg-look \
-    neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code
-# AUR chỉ cần cho: GUI apps + (Arch thường không có repo CachyOS thì thêm core -git)
-paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin
+    neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code \
+    zsh cachyos-zsh-config zsh-theme-powerlevel10k fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool
+# AUR chỉ cần cho: GUI apps + fcitx5-lotus + (Arch thường không có repo CachyOS thì thêm core -git)
+paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin
 
 # 3. Chạy installer (tự backup config cũ vào ~/.config-backup-<timestamp>)
 ./install.sh
@@ -99,6 +105,28 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin
 - Noctalia settings ở `configs/noctalia/settings.toml` chỉ là phần override; phần còn lại Noctalia tự quản trong `~/.local/state/noctalia` (không track).
 - qylock: font của một số theme (Genshin, Minecraft, Nier Automata, Star Rail, Terraria) **không nằm trong upstream repo** — `install.sh` tự chép từ `fonts/qylock/<theme>/font/` vào `external/qylock/themes/*/font/` sau khi cài. `osumania` và `windows_7` không có font ở đâu cả — theme đó dùng font mặc định của hệ thống (vẫn hoạt động).
 - Cập nhật submodules: `git submodule update --remote`
+
+## ⌨️ Bộ gõ tiếng Việt (fcitx5 + Lotus)
+
+Bộ gõ: [fcitx5-lotus](https://github.com/LotusInputMethod/fcitx5-lotus) (AUR) làm addon của fcitx5. Cài đặt tự động:
+
+```bash
+paru -S --needed fcitx5-lotus-bin          # addon Lotus (prebuilt)
+sudo udevadm control --reload-rules && sudo udevadm trigger   # quyền /dev/uinput
+sudo systemctl enable --now fcitx5-lotus-server@$(whoami).service  # system unit!
+```
+
+Config trong repo đã có sẵn phần còn lại:
+
+- **`configs/fish/config.fish`** — env vars IM (`GTK_IM_MODULE`, `QT_IM_MODULE`, `XMODIFIERS=@im=fcitx`...), đặt trong block `is-login` — Umbriel khởi từ fish login nên mọi app kế thừa
+- **`configs/fcitx5/profile`** — `DefaultIM=lotus` + layout `us`
+- **Autostart:** không cần khai báo — package fcitx5 drop XDG autostart (`/etc/xdg/autostart/org.fcitx.Fcitx5.desktop`), systemd user tự chạy khi session Umbriel lên. Muốn chắc chắn thì thêm `"fcitx5"` vào `[general].autostart`
+
+Dùng: `Ctrl+Space` bật/tắt tiếng Việt • settings trong `fcitx5-configtool` hoặc icon Lotus ở tray Noctalia.
+
+Kiểm tra: `fcitx5-diagnose | grep -i wayland` — phải thấy `frontend:wayland_v2` + InputContext của app.
+
+> Electron/Chromium (zen, code, spotify...): cần flag `--enable-wayland-ime --wayland-text-input-version=3` khi launch để IM hoạt động trơn tru trên Wayland.
 
 ## 🥾 Limine theme (bootloader)
 

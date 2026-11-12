@@ -44,6 +44,7 @@ readonly CONFIG_ITEMS=(
     mpd
     mpv
     fish
+    fcitx5
     hypr
     niri
     gtk-3.0
@@ -67,14 +68,14 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 read -rp "Install missing packages? [y/N] " instpkgs
 if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
     done
     # Packages không có binary riêng — check trực tiếp bằng pacman -Q
-    readonly DIRECT_PKGS=(xdg-desktop-portal-umbriel)
+    readonly DIRECT_PKGS=(xdg-desktop-portal-umbriel fcitx5-gtk fcitx5-qt cachyos-zsh-config)
     for p in "${DIRECT_PKGS[@]}"; do
         pacman -Q "$p" >/dev/null 2>&1 || MISSING_PKGS+=("$p")
     done
@@ -96,7 +97,7 @@ if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
     readonly FALLBACK_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
     # Package "thay thế" cũng tính là đã cài (portal không có binary, -git/stable đều được)
     readonly FALLBACK_ALT_PKGS=("" "" "xdg-desktop-portal-umbriel-git" "quickshell")
-    readonly GUI_AUR_PKGS=(zen-browser-bin helium-browser-bin spotify obsidian-bin)
+    readonly GUI_AUR_PKGS=(zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin)
     AUR_MISSING=()
     for i in "${!FALLBACK_BINS[@]}"; do
         command -v "${FALLBACK_BINS[$i]}" >/dev/null 2>&1 && continue
@@ -148,6 +149,9 @@ done
 [ -f "$HOME/.config/starship.toml" ] && mv "$HOME/.config/starship.toml" "$BACKUP_DIR/"
 [ -f "$HOME/.gtkrc-2.0" ] && mv "$HOME/.gtkrc-2.0" "$BACKUP_DIR/"
 [ -f "$HOME/.config/kdeglobals" ] && mv "$HOME/.config/kdeglobals" "$BACKUP_DIR/"
+# zsh lives in $HOME, not ~/.config
+[ -f "$HOME/.zshrc" ] && mv "$HOME/.zshrc" "$BACKUP_DIR/"
+[ -f "$HOME/.p10k.zsh" ] && mv "$HOME/.p10k.zsh" "$BACKUP_DIR/"
 # Noctalia state (settings thật sự của `noctalia settings` UI)
 if [ -d "$HOME/.local/state/noctalia" ]; then
     mkdir -p "$BACKUP_DIR/noctalia-state"
@@ -190,6 +194,19 @@ if [ -f "$CONFIGS_DIR/kdeglobals" ]; then
     cp "$CONFIGS_DIR/kdeglobals" "$HOME/.config/kdeglobals"
     ok "$HOME/.config/kdeglobals"
 fi
+
+# zsh + Powerlevel10k theme (deploy vào $HOME)
+if [ -f "$CONFIGS_DIR/zsh/zshrc" ]; then
+    cp "$CONFIGS_DIR/zsh/zshrc" "$HOME/.zshrc"
+    ok "$HOME/.zshrc"
+fi
+if [ -f "$CONFIGS_DIR/zsh/p10k.zsh" ]; then
+    cp "$CONFIGS_DIR/zsh/p10k.zsh" "$HOME/.p10k.zsh"
+    ok "$HOME/.p10k.zsh"
+fi
+
+# fcitx5: profile có sẵn IM "lotus" (thêm Lotus từ fcitx5-configtool trên máy cũ
+# — install chỉ cần cài fcitx5-lotus-bin là nhận ngay)
 
 ok "Deploy done"
 

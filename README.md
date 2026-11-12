@@ -95,6 +95,10 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-
 #   → cài logo mặc định vào ~/Pictures/Pfps-and-logos (avatar + icon.png)
 #   → HỎI trước khi tải CozyPixels wallpapers (~1.9GB) về ~/Pictures/Wallpapers
 #     (bỏ qua tự động nếu máy đã có sẵn)
+#
+#   Cờ -y / --yes: trả lời YES tự động cho toàn bộ prompt — cài non-interactive:
+./install.sh --yes
+#   (sudo password vẫn phải nhập tay khi pacman/MikuPlymouth hỏi)
 
 # 4. Reboot (để Plymouth ăn mkinitcpio), vào session Umbriel
 ```

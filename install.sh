@@ -30,6 +30,35 @@ ok()   { echo -e "${GREEN}✔${NC} $*"; }
 warn() { echo -e "${YELLOW}!${NC} $*"; }
 die()  { echo -e "${RED}✘${NC} $*" >&2; exit 1; }
 
+# --- Flags ---
+ASSUME_YES=0
+for arg in "$@"; do
+    case "$arg" in
+        -y|--yes) ASSUME_YES=1 ;;
+        -h|--help)
+            echo "Usage: ./install.sh [-y|--yes]"
+            echo "  -y, --yes   Trả lời YES tự động cho toàn bộ prompt"
+            echo "              (packages, paru, MikuPlymouth, timer, CozyPixels wallpapers)"
+            echo "              Lưu ý: sudo password vẫn phải nhập tay khi được hỏi."
+            exit 0 ;;
+        *) die "Unknown option: $arg (dùng --help)" ;;
+    esac
+done
+
+# ask <prompt> — in prompt ra terminal và trả về "y"/"n"
+# Chế độ --yes: tự trả "y" không chờ input
+ask() {
+    local prompt="$*"
+    if [ "$ASSUME_YES" -eq 1 ]; then
+        echo -e "${CYAN}::${NC} ${prompt} [y/N] y (auto)" >&2
+        echo "y"
+    else
+        local reply
+        read -rp "${prompt} [y/N] " reply
+        if [[ "${reply:-}" =~ ^[Yy]$ ]]; then echo "y"; else echo "n"; fi
+    fi
+}
+
 # --- What we deploy ---
 readonly CONFIG_ITEMS=(
     umbriel
@@ -65,8 +94,7 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # Step 0.5: Optional — cài packages còn thiếu
 # Chiến lược: pacman (official repos) trước, paru chỉ lo phần AUR còn thiếu
 # ==============================================================================
-read -rp "Install missing packages? [y/N] " instpkgs
-if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
+if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
     readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
     readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
@@ -115,8 +143,7 @@ if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
         ok "AUR packages đủ hết rồi"
     elif ! command -v paru >/dev/null 2>&1; then
         warn "Thiếu AUR packages: ${AUR_MISSING[*]}"
-        read -rp "Thử cài paru qua pacman rồi chạy tiếp? [y/N] " getparu
-        if [[ "${getparu:-}" =~ ^[Yy]$ ]]; then
+        if [[ "$(ask "Thử cài paru qua pacman rồi chạy tiếp?")" == "y" ]]; then
             if sudo pacman -S --needed paru; then
                 for p in "${AUR_MISSING[@]}"; do
                     log "Cài AUR: $p"
@@ -262,8 +289,7 @@ fi
 # ==============================================================================
 log "MikuPlymouth needs root privileges."
 if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
-    read -rp "Install MikuPlymouth now? [y/N] " answer
-    if [[ "$answer" =~ ^[Yy]$ ]]; then
+    if [[ "$(ask "Install MikuPlymouth now?")" == "y" ]]; then
         ( cd "$EXTERNAL_DIR/MikuPlymouth" && sudo bash install.sh ) \
             || warn "MikuPlymouth install failed — run manually: cd $EXTERNAL_DIR/MikuPlymouth && sudo ./install.sh"
     else
@@ -274,8 +300,7 @@ if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
     echo
     log "Bonus: Plymouth chỉ giữ được ~10 clips một lúc (giới hạn RAM/initramfs)."
     log "Timer miku-rotate chạy install.sh mỗi ngày 1 phút sau boot để xoay vòng qua đủ 37 clips."
-    read -rp "Enable daily clip rotation (systemd timer)? [y/N] " rotate
-    if [[ "$rotate" =~ ^[Yy]$ ]]; then
+    if [[ "$(ask "Enable daily clip rotation (systemd timer)?")" == "y" ]]; then
         if sudo rsync -a --exclude=.git "$EXTERNAL_DIR/MikuPlymouth/" /opt/MikuPlymouth/ \
             && sudo cp /opt/MikuPlymouth/miku-rotate.service /etc/systemd/system/ \
             && sudo cp /opt/MikuPlymouth/miku-rotate.timer /etc/systemd/system/ \
@@ -310,8 +335,7 @@ if [ -d "$HOME/Pictures/Wallpapers/Catppuccin" ]; then
 else
     echo
     log "CozyPixels: bộ sưu tập wallpaper ~1.9GB (Catppuccin, Nord, One Dark, anime, live...)"
-    read -rp "Download CozyPixels wallpapers vào $HOME/Pictures/Wallpapers? [y/N] " getwps
-    if [[ "${getwps:-}" =~ ^[Yy]$ ]]; then
+    if [[ "$(ask "Download CozyPixels wallpapers vào $HOME/Pictures/Wallpapers?")" == "y" ]]; then
         TMP_COZY="$(mktemp -d)"
         if git clone --depth 1 "$COZY_URL" "$TMP_COZY/CozyPixels"; then
             mkdir -p "$HOME/Pictures/Wallpapers"

@@ -105,8 +105,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # ==============================================================================
 if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -425,6 +425,39 @@ else
         fi
     else
         warn "Giữ login shell cũ. Đổi sau: chsh -s /usr/bin/fish"
+    fi
+fi
+
+# ==============================================================================
+# Step 7: SDDM display manager — màn hình login dùng cùng theme qylock
+# (SDDM theme pixel-dusk-city = copy của external/qylock/themes/pixel-dusk-city)
+# ==============================================================================
+if pacman -Q sddm >/dev/null 2>&1; then
+    if systemctl is-enabled sddm.service >/dev/null 2>&1; then
+        ok "sddm.service đã enabled — bỏ qua"
+    elif [[ "$(ask "Enable sddm.service làm display manager?")" == "y" ]]; then
+        if sudo systemctl enable sddm.service; then
+            ok "sddm.service enabled"
+        else
+            warn "enable thất bại — chạy tay: sudo systemctl enable sddm"
+        fi
+    fi
+
+    # Login theme = cùng theme với lockscreen (từ qylock submodule)
+    if [ -d "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" ] \
+        && [ ! -d /usr/share/sddm/themes/pixel-dusk-city ]; then
+        if [[ "$(ask "Install pixel-dusk-city SDDM login theme (cần sudo)?")" == "y" ]]; then
+            if sudo cp -a "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" /usr/share/sddm/themes/ \
+                && ( mkdir -p /etc/sddm.conf.d \
+                    && printf '[Theme]\nCurrent=pixel-dusk-city\n' \
+                    | sudo tee /etc/sddm.conf.d/theme.conf >/dev/null ); then
+                ok "SDDM login theme installed + set làm mặc định"
+            else
+                warn "Thất bại — làm tay: sudo cp -a external/qylock/themes/pixel-dusk-city /usr/share/sddm/themes/"
+            fi
+        fi
+    else
+        ok "SDDM theme pixel-dusk-city đã có sẵn"
     fi
 fi
 

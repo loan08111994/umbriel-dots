@@ -77,8 +77,9 @@ umbriel-dots/
 git clone --recurse-submodules https://github.com/loan08111994/umbriel-dots
 cd umbriel-dots
 
-# 2. Install deps — install.sh asks: pacman first for repo packages,
-#    paru only for what's missing on AUR. Manual install:
+# 2. (OPTIONAL) Install deps — install.sh installs everything itself when you
+#    answer "y" at its first prompt. Run this manually ONLY if you prefer to
+#    see/control what gets installed:
 sudo pacman -S --needed umbriel noctalia xdg-desktop-portal-umbriel quickshell xwayland-satellite nwg-look \
     neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code \
     zsh cachyos-zsh-config zsh-theme-powerlevel10k fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool \

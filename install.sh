@@ -66,12 +66,17 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # ==============================================================================
 read -rp "Install missing packages? [y/N] " instpkgs
 if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
-    # --- 1) Repo packages qua pacman ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code)
+    # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
+    done
+    # Packages không có binary riêng — check trực tiếp bằng pacman -Q
+    readonly DIRECT_PKGS=(xdg-desktop-portal-umbriel)
+    for p in "${DIRECT_PKGS[@]}"; do
+        pacman -Q "$p" >/dev/null 2>&1 || MISSING_PKGS+=("$p")
     done
 
     if [ "${#MISSING_PKGS[@]}" -eq 0 ]; then
@@ -85,12 +90,22 @@ if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
         fi
     fi
 
-    # --- 2) AUR packages qua paru (những gì pacman không có) ---
-    # Core: umbriel/noctalia stack | GUI: zen, helium, spotify, obsidian
-    readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell \
-                       zen-browser-bin helium-browser-bin spotify obsidian-bin)
+    # --- 2) AUR fallback qua paru: chỉ những gì pacman KHÔNG có ---
+    # Trên Arch thường (không có repo CachyOS) → dùng bản -git; GUI apps chỉ có AUR
+    readonly FALLBACK_BINS=(umbriel noctalia xdg-desktop-portal-umbriel quickshell)
+    readonly FALLBACK_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
+    # Package "thay thế" cũng tính là đã cài (portal không có binary, -git/stable đều được)
+    readonly FALLBACK_ALT_PKGS=("" "" "xdg-desktop-portal-umbriel-git" "quickshell")
+    readonly GUI_AUR_PKGS=(zen-browser-bin helium-browser-bin spotify obsidian-bin)
     AUR_MISSING=()
-    for p in "${AUR_PKGS[@]}"; do
+    for i in "${!FALLBACK_BINS[@]}"; do
+        command -v "${FALLBACK_BINS[$i]}" >/dev/null 2>&1 && continue
+        pacman -Q "${FALLBACK_BINS[$i]}" >/dev/null 2>&1 && continue
+        alt="${FALLBACK_ALT_PKGS[$i]}"
+        [ -n "$alt" ] && pacman -Q "$alt" >/dev/null 2>&1 && continue
+        AUR_MISSING+=("${FALLBACK_PKGS[$i]}")
+    done
+    for p in "${GUI_AUR_PKGS[@]}"; do
         pacman -Q "$p" >/dev/null 2>&1 || AUR_MISSING+=("$p")
     done
 

@@ -52,7 +52,10 @@ umbriel-dots/
 │         ~/Pictures/Wallpapers: Catppuccin, Nord, One Dark, anime, live...)
 ├── external/             # git submodules
 │   ├── qylock/           # github.com/Darkkal44/qylock
-│   └── MikuPlymouth/     # github.com/Thang1191/MikuPlymouth
+│   ├── MikuPlymouth/     # github.com/Thang1191/MikuPlymouth
+│   └── catppuccin-limine/ # github.com/catppuccin/limine — theme bootloader
+├── boot/
+│   └── limine/           # limine-splash.png — wallpaper cho màn hình boot
 ├── install.sh
 ├── sync.sh               # đồng bộ ngược máy → repo
 └── README.md
@@ -94,6 +97,37 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin
 - qylock: một số theme font (Genshin, Minecraft, Nier Automata, Star Rail) không nằm trong upstream repo — nếu dùng theme đó phải tự chép font vào `external/qylock/themes/*/font/`.
 - Cập nhật submodules: `git submodule update --remote`
 
+## 🥾 Limine theme (bootloader)
+
+Máy dùng Limine (CachyOS: `/boot/limine.conf`). Repo có sẵn:
+
+- **`external/catppuccin-limine/`** — 4 flavors × 10 accents: `themes/mocha/catppuccin-mocha-pink.conf`...
+- **`boot/limine/limine-splash.png`** — ảnh splash (phố sakura) cho màn hình boot
+
+Cách tự config (cần sudo vì `/boot` là ESP):
+
+```bash
+# 1. Chọn theme — xem màu từng accent:
+cat external/catppuccin-limine/themes/mocha/catppuccin-mocha-pink.conf
+
+# 2. Paste nội dung theme vào ĐẦU /boot/limine.conf:
+sudo nano /boot/limine.conf
+
+# 3. Copy splash lên ESP và trỏ vào config (global option — đặt trước entry đầu tiên):
+sudo cp boot/limine/limine-splash.png /boot/limine-splash.png
+#    → thêm vào /boot/limine.conf:
+#    wallpaper: boot():/limine-splash.png
+#    wallpaper_style: centered        # tiled | centered | stretched (mặc định stretched)
+#    backdrop: 1e1e2e                 # màu vùng trống khi dùng centered (RRGGBB)
+
+# 4. Chỉnh branding text (trống = ẩn):
+#    interface_branding:
+
+# 5. Khởi động lại để xem kết quả
+```
+
+> ⚠️ Lưu ý CachyOS: `limine-mkinitcpio-hook` + `limine-snapper-sync` có thể **ghi đè** các mục trong `limine.conf` khi cập nhật kernel — chỉnh phần theme ở đầu file, giữ nguyên các mục `entry:` mà hook sinh ra.
+
 ## ⌨️ Keybinds chính
 
 | Key | Action |
@@ -111,4 +145,5 @@ Danh sách đầy đủ: `~/.config/umbriel/config.toml` → `[keybinds]`.
 - [qylock](https://github.com/Darkkal44/qylock) — lockscreen
 - [MikuPlymouth](https://github.com/Thang1191/MikuPlymouth) — boot splash
 - [CozyPixels](https://github.com/SleepyCatHey/CozyPixels) — wallpaper collection + logo mèo
+- [catppuccin/limine](https://github.com/catppuccin/limine) — theme bootloader Limine
 - [Noctalia](https://github.com/noctalia-dev/noctalia-shell) + [Umbriel](https://docs.noctalia.dev/umbriel/) — shell & compositor

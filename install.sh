@@ -209,20 +209,20 @@ log "Backing up existing ~/.config items to $BACKUP_DIR ..."
 mkdir -p "$BACKUP_DIR"
 for item in "${CONFIG_ITEMS[@]}"; do
     if [ -e "$HOME/.config/$item" ]; then
-        mv "$HOME/.config/$item" "$BACKUP_DIR/"
+        cp -a "$HOME/.config/$item" "$BACKUP_DIR/"
     fi
 done
 # Loose files
-[ -f "$HOME/.config/starship.toml" ] && mv "$HOME/.config/starship.toml" "$BACKUP_DIR/"
-[ -f "$HOME/.gtkrc-2.0" ] && mv "$HOME/.gtkrc-2.0" "$BACKUP_DIR/"
-[ -f "$HOME/.config/kdeglobals" ] && mv "$HOME/.config/kdeglobals" "$BACKUP_DIR/"
+[ -f "$HOME/.config/starship.toml" ] && cp -a "$HOME/.config/starship.toml" "$BACKUP_DIR/"
+[ -f "$HOME/.gtkrc-2.0" ] && cp -a "$HOME/.gtkrc-2.0" "$BACKUP_DIR/"
+[ -f "$HOME/.config/kdeglobals" ] && cp -a "$HOME/.config/kdeglobals" "$BACKUP_DIR/"
 # zsh lives in $HOME, not ~/.config
-[ -f "$HOME/.zshrc" ] && mv "$HOME/.zshrc" "$BACKUP_DIR/"
-[ -f "$HOME/.p10k.zsh" ] && mv "$HOME/.p10k.zsh" "$BACKUP_DIR/"
-[ -f "$HOME/.zshenv" ] && mv "$HOME/.zshenv" "$BACKUP_DIR/"
+[ -f "$HOME/.zshrc" ] && cp -a "$HOME/.zshrc" "$BACKUP_DIR/"
+[ -f "$HOME/.p10k.zsh" ] && cp -a "$HOME/.p10k.zsh" "$BACKUP_DIR/"
+[ -f "$HOME/.zshenv" ] && cp -a "$HOME/.zshenv" "$BACKUP_DIR/"
 # bash too
-[ -f "$HOME/.bashrc" ] && mv "$HOME/.bashrc" "$BACKUP_DIR/"
-[ -f "$HOME/.bash_profile" ] && mv "$HOME/.bash_profile" "$BACKUP_DIR/"
+[ -f "$HOME/.bashrc" ] && cp -a "$HOME/.bashrc" "$BACKUP_DIR/"
+[ -f "$HOME/.bash_profile" ] && cp -a "$HOME/.bash_profile" "$BACKUP_DIR/"
 # Noctalia state (settings thật sự của `noctalia settings` UI)
 if [ -d "$HOME/.local/state/noctalia" ]; then
     mkdir -p "$BACKUP_DIR/noctalia-state"

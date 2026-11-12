@@ -296,6 +296,27 @@ if [ -d "$REPO_DIR/fonts/qylock" ] && [ -d "$EXTERNAL_DIR/qylock/themes" ]; then
 fi
 
 # ==============================================================================
+# Step 3.5: fcitx5-lotus — server unit + udev (nếu addon đã được cài qua AUR)
+# ==============================================================================
+if command -v fcitx5-lotus-server >/dev/null 2>&1; then
+    log "Setting up fcitx5-lotus..."
+    if ! systemctl is-enabled "fcitx5-lotus-server@$(id -un).service" >/dev/null 2>&1; then
+        if [[ "$(ask "Enable fcitx5-lotus-server (system unit + udev rules)?")" == "y" ]]; then
+            if sudo udevadm control --reload-rules \
+                && sudo udevadm trigger \
+                && sudo modprobe uinput \
+                && sudo systemctl enable --now "fcitx5-lotus-server@$(id -un).service"; then
+                ok "fcitx5-lotus-server enabled — bộ gõ dùng ngay"
+            else
+                warn "Setup thất bại — làm tay: xem README mục 'Vietnamese input method'"
+            fi
+        fi
+    else
+        ok "fcitx5-lotus-server đã enabled — bỏ qua"
+    fi
+fi
+
+# ==============================================================================
 # Step 4: MikuPlymouth (boot splash) — needs root
 # ==============================================================================
 log "MikuPlymouth needs root privileges."

@@ -335,3 +335,6 @@ blur_optimized = false
 enabled = true
 delay_ms = 500
 action = "overview-open"
+
+[include.optional]
+files = ["noctalia.toml"]

@@ -27,6 +27,7 @@
 Dotfile cá nhân được extract trực tiếp từ máy đang chạy, gồm:
 
 - **Umbriel** — compositor native của hệ Noctalia ([docs](https://docs.noctalia.dev/umbriel/)), config đã tinh chỉnh keybinds, autostart Noctalia, NVIDIA workaround.
+  > 🌈 **Border màu theo wallpaper:** template chính chủ của Noctalia (Settings → Templates → Compositors → Umbriel) sinh `~/.config/umbriel/noctalia.toml` từ palette matugen của wallpaper — viền focus, unfocus, title bar, overview tint tự đổi màu mỗi lần đổi wallpaper. File được umbriel include qua `[include.optional]` và **tự reload** khi Noctalia render lại.
 - **Noctalia shell v5** — settings + user templates + toàn bộ 9 plugins (catwalk, clipper, custom-sticker, dns-switcher, pomodoro, screen-recorder, timer, usb-drive-manager, video-wallpaper).
   > ⚠️ Settings thật của Noctalia nằm ở `~/.local/state/noctalia/settings.toml` (UI `noctalia settings` ghi vào đây), còn `~/.config/noctalia/settings.toml` chỉ là override layer. Repo này lưu cả hai: `configs/noctalia/` (override) + `configs/noctalia-state/` (settings thật).
 - **qylock** — lockscreen Quickshell anime-style, bind `Mod+Alt+L`.

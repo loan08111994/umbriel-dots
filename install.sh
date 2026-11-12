@@ -295,7 +295,13 @@ ok "Deploy done"
 # Step 3: qylock (Quickshell lockscreen)
 # ==============================================================================
 log "Installing qylock..."
-if [ -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
+QS_LOCK_DIR="$HOME/.local/share/quickshell-lockscreen"
+readonly QS_LOCK_DIR
+if [ -x "$QS_LOCK_DIR/lock.sh" ] && [ -L "$QS_LOCK_DIR/themes_link" ]; then
+    ok "qylock lockscreen đã cài ($QS_LOCK_DIR) — bỏ qua quickshell.sh"
+    ok "  themes_link → $(readlink "$QS_LOCK_DIR/themes_link")"
+    ok "  đổi theme: ~/.config/qylock/theme hoặc chạy lại ./external/qylock/quickshell.sh"
+elif [ -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
     if [ "$ASSUME_YES" -eq 1 ]; then
         # Non-interactive: pipe 'y' cho prompt proceed; theme chọn bằng fzf sẽ
         # không chạy được (không TTY) → script upstream tự default về 'nier-automata'.
@@ -361,7 +367,9 @@ fi
 log "MikuPlymouth needs root privileges."
 if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
     if [[ "$(ask "Install MikuPlymouth now?")" == "y" ]]; then
-        ( cd "$EXTERNAL_DIR/MikuPlymouth" && sudo bash install.sh ) \
+        # Pipe 'y' vào: sudo vẫn hỏi password qua tty riêng, còn prompt ẩn nào
+        # bên trong script con (mkinitcpio/limine hook...) đều được auto-yes
+        ( cd "$EXTERNAL_DIR/MikuPlymouth" && printf 'y\ny\ny\ny\ny\ny\n' | sudo bash install.sh ) \
             || warn "MikuPlymouth install failed — run manually: cd $EXTERNAL_DIR/MikuPlymouth && sudo ./install.sh"
     else
         warn "Skipped. Install later: cd $EXTERNAL_DIR/MikuPlymouth && sudo ./install.sh"
@@ -448,11 +456,13 @@ fi
 # ==============================================================================
 # Step 7: SDDM display manager — màn hình login dùng cùng theme qylock
 # (SDDM theme pixel-dusk-city = copy của external/qylock/themes/pixel-dusk-city)
+# Tự động hoàn toàn — không hỏi (enable + theme đều là thao tác an toàn/khôi phục)
 # ==============================================================================
 if pacman -Q sddm >/dev/null 2>&1; then
     if systemctl is-enabled sddm.service >/dev/null 2>&1; then
         ok "sddm.service đã enabled — bỏ qua"
-    elif [[ "$(ask "Enable sddm.service làm display manager?")" == "y" ]]; then
+    else
+        log "Enabling sddm.service..."
         if sudo systemctl enable sddm.service; then
             ok "sddm.service enabled"
         else
@@ -460,10 +470,12 @@ if pacman -Q sddm >/dev/null 2>&1; then
         fi
     fi
 
-    # Login theme = cùng theme với lockscreen (từ qylock submodule)
-    if [ -d "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" ] \
-        && [ ! -d /usr/share/sddm/themes/pixel-dusk-city ]; then
-        if [[ "$(ask "Install pixel-dusk-city SDDM login theme (cần sudo)?")" == "y" ]]; then
+    # Login theme = cùng theme với lockscreen (từ qylock submodule) — tự động
+    if [ -d "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" ]; then
+        if [ -d /usr/share/sddm/themes/pixel-dusk-city ]; then
+            ok "SDDM theme pixel-dusk-city đã có sẵn"
+        else
+            log "Installing pixel-dusk-city SDDM login theme..."
             if sudo cp -a "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" /usr/share/sddm/themes/ \
                 && ( mkdir -p /etc/sddm.conf.d \
                     && printf '[Theme]\nCurrent=pixel-dusk-city\n' \
@@ -473,8 +485,6 @@ if pacman -Q sddm >/dev/null 2>&1; then
                 warn "Thất bại — làm tay: sudo cp -a external/qylock/themes/pixel-dusk-city /usr/share/sddm/themes/"
             fi
         fi
-    else
-        ok "SDDM theme pixel-dusk-city đã có sẵn"
     fi
 fi
 

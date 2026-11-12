@@ -409,22 +409,37 @@ fi
 
 # --- CozyPixels wallpapers (~1.9GB) — HỎI TRƯỚC KHI CÀI ---
 readonly COZY_URL="https://github.com/SleepyCatHey/CozyPixels"
-if [ -d "$HOME/Pictures/Wallpapers/Catppuccin" ]; then
-    ok "CozyPixels wallpapers đã có sẵn ở $HOME/Pictures/Wallpapers — bỏ qua"
+# Skip chỉ khi tải xong thật sự (≥100 files) — thư mục rỗng/dở dang phải tải lại.
+# `|| true` trong pipeline: find lỗi (thư mục chưa tồn tại) không được phép
+# chết script qua set -e + pipefail.
+WP_COUNT="$(find "$HOME/Pictures/Wallpapers" -type f 2>/dev/null | wc -l || true)"
+if [ "$WP_COUNT" -ge 100 ]; then
+    ok "CozyPixels wallpapers đã có sẵn ở $HOME/Pictures/Wallpapers ($WP_COUNT files) — bỏ qua"
 else
+    if [ "$WP_COUNT" -gt 0 ]; then
+        warn "Wallpapers dir chỉ có $WP_COUNT files — tải lại cho đủ bộ"
+    fi
     echo
     log "CozyPixels: bộ sưu tập wallpaper ~1.9GB (Catppuccin, Nord, One Dark, anime, live...)"
     if [[ "$(ask "Download CozyPixels wallpapers vào $HOME/Pictures/Wallpapers?")" == "y" ]]; then
-        TMP_COZY="$(mktemp -d)"
-        if git clone --depth 1 "$COZY_URL" "$TMP_COZY/CozyPixels"; then
+        # Clone vào ~/.cache (disk thật) — KHÔNG dùng /tmp: /tmp là tmpfs (RAM),
+        # repo 1.9GB + RAM VM nhỏ → clone chết giữa chừng "No space left on device".
+        COZY_TMP="$HOME/.cache/umbriel-dots/CozyPixels-clone"
+        rm -rf "$COZY_TMP"
+        if git clone --depth 1 "$COZY_URL" "$COZY_TMP"; then
             mkdir -p "$HOME/Pictures/Wallpapers"
-            rsync -a "$TMP_COZY/CozyPixels/" "$HOME/Pictures/Wallpapers/" \
+            rsync -a "$COZY_TMP/" "$HOME/Pictures/Wallpapers/" \
                 --exclude=.git --exclude=README.md --exclude=LICENSE --exclude=cozypixels-banner.png
-            ok "Wallpapers đã vào $HOME/Pictures/Wallpapers"
+            WP_COUNT="$(find "$HOME/Pictures/Wallpapers" -type f | wc -l || true)"
+            WP_SIZE="$(du -sh "$HOME/Pictures/Wallpapers" 2>/dev/null | cut -f1)"
+            ok "Wallpapers đã vào $HOME/Pictures/Wallpapers — $WP_COUNT files, $WP_SIZE"
+            if [ "$WP_COUNT" -lt 100 ]; then
+                warn "Số file thấp bất thường — kiểm tra: ls ~/Pictures/Wallpapers"
+            fi
         else
             warn "Clone CozyPixels thất bại — tự clone: git clone --depth 1 $COZY_URL"
         fi
-        rm -rf "$TMP_COZY"
+        rm -rf "$COZY_TMP"
     else
         warn "Skipped. Cài sau: git clone --depth 1 $COZY_URL rồi chép nội dung vào ~/Pictures/Wallpapers"
     fi

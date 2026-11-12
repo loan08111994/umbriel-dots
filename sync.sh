@@ -50,6 +50,7 @@ readonly EXTRA_FILES=(
     "$HOME/.zshenv:$REPO_DIR/configs/zsh/zshenv"
     "$HOME/.bashrc:$REPO_DIR/configs/bash/bashrc"
     "$HOME/.bash_profile:$REPO_DIR/configs/bash/bash_profile"
+    "$HOME/.config/qylock/theme:$REPO_DIR/configs/qylock/theme"
 )
 
 readonly GREEN='\033[0;32m'
@@ -76,7 +77,10 @@ done
 for pair in "${EXTRA_FILES[@]}"; do
     src="${pair%%:*}"
     dst="${pair#*:}"
-    [ -f "$src" ] && cp "$src" "$dst"
+    if [ -f "$src" ]; then
+        mkdir -p "$(dirname "$dst")"
+        cp "$src" "$dst"
+    fi
 done
 
 # Logo/pfps (nhỏ, mirror ngược cả thư mục)

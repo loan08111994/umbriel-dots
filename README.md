@@ -115,10 +115,10 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-
 
 ### Notes for deploying to another machine
 
-- `configs/umbriel/config.toml` binds `Mod+Alt+L` with the hardcoded path `/home/nevil/.local/share/quickshell-lockscreen/lock.sh` — change it to your own `$HOME/...`.
+- `install.sh` **auto-rewrites** hardcoded `/home/nevil` paths in deployed configs to your `$HOME` after deploying (keybind `Mod+Alt+L`, fish, niri fallback, noctalia state...) — no manual edit needed.
 - `[keybinds]` in config.toml **completely replaces** Umbriel's default keybinds — anything you add must go into this file.
 - Noctalia settings in `configs/noctalia/settings.toml` are only the override layer; Noctalia manages the rest in `~/.local/state/noctalia` (not tracked).
-- qylock: fonts for some themes (Genshin, Minecraft, Nier Automata, Star Rail, Terraria) **are not tracked upstream** — `install.sh` copies them from `fonts/qylock/<theme>/font/` into `external/qylock/themes/*/font/` after installing. `osumania` and `windows_7` have no fonts anywhere — those themes fall back to the system default font (still works).
+- qylock: fonts for some themes (Genshin, Minecraft, Nier Automata, Star Rail, Terraria) **are not tracked upstream** — `install.sh` copies them from `fonts/qylock/<theme>/font/` into `external/qylock/themes/*/font/` after installing. `osumania` and `windows_7` have no fonts anywhere — those themes fall back to the system default font (still works). The chosen theme (`~/.config/qylock/theme`) is tracked in `configs/qylock/theme` and restored after install; with `--yes` the upstream installer defaults to `nier-automata` before the repo snapshot is restored on top.
 - Update submodules: `git submodule update --remote`
 
 ## ⌨️ Vietnamese input method (fcitx5 + Lotus)

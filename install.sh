@@ -105,8 +105,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # ==============================================================================
 if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -265,6 +265,15 @@ fi
 # fcitx5: profile có sẵn IM "lotus" (thêm Lotus từ fcitx5-configtool trên máy cũ
 # — install chỉ cần cài fcitx5-lotus-bin là nhận ngay)
 
+# Portable paths — /home/nevil hardcode (lấy từ máy gốc) → $HOME của máy đích.
+# Ảnh hưởng tới: keybind Mod+Alt+L (lock.sh), fish, niri fallback, gtkrc, noctalia state.
+if grep -rlq "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null; then
+    log "Rewriting hardcoded /home/nevil → $HOME ..."
+    grep -rlZ "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null \
+        | xargs -0 -r sed -i "s|/home/nevil|$HOME|g"
+    ok "All deployed configs now point to $HOME"
+fi
+
 ok "Deploy done"
 
 # ==============================================================================
@@ -272,7 +281,15 @@ ok "Deploy done"
 # ==============================================================================
 log "Installing qylock..."
 if [ -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
-    bash "$EXTERNAL_DIR/qylock/quickshell.sh" || warn "qylock install failed — run it manually later"
+    if [ "$ASSUME_YES" -eq 1 ]; then
+        # Non-interactive: pipe 'y' cho prompt proceed; theme chọn bằng fzf sẽ
+        # không chạy được (không TTY) → script upstream tự default về 'nier-automata'.
+        # Đổi theme sau: chạy lại ./external/qylock/quickshell.sh hoặc sửa ~/.config/qylock/theme
+        printf 'y\n\n\n\n\n' | bash "$EXTERNAL_DIR/qylock/quickshell.sh" \
+            || warn "qylock install failed — run it manually later"
+    else
+        bash "$EXTERNAL_DIR/qylock/quickshell.sh" || warn "qylock install failed — run it manually later"
+    fi
 else
     warn "qylock submodule not initialized. Run: git submodule update --init --recursive"
 fi
@@ -293,6 +310,13 @@ if [ -d "$REPO_DIR/fonts/qylock" ] && [ -d "$EXTERNAL_DIR/qylock/themes" ]; then
             ok "qylock font: $theme"
         fi
     done
+fi
+
+# qylock: khôi phục theme đang chọn (quickshell.sh ghi đè nó ở trên)
+if [ -f "$CONFIGS_DIR/qylock/theme" ]; then
+    mkdir -p "$HOME/.config/qylock"
+    cp "$CONFIGS_DIR/qylock/theme" "$HOME/.config/qylock/theme"
+    ok "qylock theme restored: $(cat "$HOME/.config/qylock/theme" 2>/dev/null || echo '?')"
 fi
 
 # ==============================================================================
@@ -412,5 +436,5 @@ echo -e "${BOLD}Deployed!${NC}"
 echo -e "  • Lock screen:  ${CYAN}Mod+Alt+L${NC} (qylock)  |  Noctalia lock: ${CYAN}Mod+Shift+L${NC}"
 echo -e "  • Umbriel config: ~/.config/umbriel/config.toml  (auto-reloads)"
 echo -e "  • Noctalia UI:    noctalia settings"
-echo -e "  • NOTE: umbriel config hardcodes ${CYAN}/home/nevil${NC} in Mod+Alt+L —"
-echo -e "          change it to your \$HOME path if deploying on another machine."
+echo -e "  • NOTE: hardcoded /home/nevil in deployed configs was rewritten to your"
+echo -e "          \$HOME automatically (including the Mod+Alt+L lock.sh path)."

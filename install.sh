@@ -203,6 +203,24 @@ else
     warn "qylock submodule not initialized. Run: git submodule update --init --recursive"
 fi
 
+# Upstream qylock KHÔNG track font của một số theme (bỏ trống font/).
+# Repo giữ font thiếu ở fonts/qylock/<theme>/font/ — chép vào submodule nếu thiếu.
+# (quickshell.sh tạo themes_link -> clone qylock này, nên font phải nằm đúng chỗ.)
+if [ -d "$REPO_DIR/fonts/qylock" ] && [ -d "$EXTERNAL_DIR/qylock/themes" ]; then
+    log "Patching qylock themes with missing fonts..."
+    for theme_dir in "$REPO_DIR"/fonts/qylock/*/; do
+        theme="$(basename "$theme_dir")"
+        dest="$EXTERNAL_DIR/qylock/themes/$theme/font"
+        # Theme phải tồn tại trong submodule; chép khi dest thiếu (hoặc chỉ có .gitkeep)
+        if [ -d "$EXTERNAL_DIR/qylock/themes/$theme" ] \
+            && [ -z "$(find "$dest" -type f ! -name '.gitkeep' -print -quit 2>/dev/null)" ]; then
+            mkdir -p "$dest"
+            cp -a "$theme_dir"/font/. "$dest/"
+            ok "qylock font: $theme"
+        fi
+    done
+fi
+
 # ==============================================================================
 # Step 4: MikuPlymouth (boot splash) — needs root
 # ==============================================================================

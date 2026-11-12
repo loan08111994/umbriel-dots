@@ -56,6 +56,9 @@ umbriel-dots/
 │   └── catppuccin-limine/ # github.com/catppuccin/limine — theme bootloader
 ├── boot/
 │   └── limine/           # limine-splash.png — wallpaper cho màn hình boot
+├── fonts/
+│   └── qylock/           # font thiếu trong upstream (Genshin, minecraft, nier-automata,
+│                         #   star-rail, terraria) — install.sh chép vào theme khi cần
 ├── install.sh
 ├── sync.sh               # đồng bộ ngược máy → repo
 └── README.md
@@ -94,7 +97,7 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin
 - `configs/umbriel/config.toml` bind `Mod+Alt+L` hardcode path `/home/nevil/.local/share/quickshell-lockscreen/lock.sh` — sửa thành `$HOME/...` của bạn.
 - `[keybinds]` trong config.toml **thay thế hoàn toàn** keybind mặc định của Umbriel — bind gì mới phải thêm đầy đủ vào file này.
 - Noctalia settings ở `configs/noctalia/settings.toml` chỉ là phần override; phần còn lại Noctalia tự quản trong `~/.local/state/noctalia` (không track).
-- qylock: một số theme font (Genshin, Minecraft, Nier Automata, Star Rail) không nằm trong upstream repo — nếu dùng theme đó phải tự chép font vào `external/qylock/themes/*/font/`.
+- qylock: font của một số theme (Genshin, Minecraft, Nier Automata, Star Rail, Terraria) **không nằm trong upstream repo** — `install.sh` tự chép từ `fonts/qylock/<theme>/font/` vào `external/qylock/themes/*/font/` sau khi cài. `osumania` và `windows_7` không có font ở đâu cả — theme đó dùng font mặc định của hệ thống (vẫn hoạt động).
 - Cập nhật submodules: `git submodule update --remote`
 
 ## 🥾 Limine theme (bootloader)

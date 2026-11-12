@@ -54,7 +54,7 @@ umbriel-dots/
 
 ```bash
 # 1. Clone cùng submodules
-git clone --recurse-submodules https://github.com/<you>/umbriel-dots
+git clone --recurse-submodules https://github.com/loan08111994/umbriel-dots
 cd umbriel-dots
 
 # 2. Cài deps (CachyOS/Arch)

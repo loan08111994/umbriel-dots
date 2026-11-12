@@ -1,0 +1,22 @@
+name: Validate configs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Syntax-check configs & scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run validation (shellcheck, bash -n, TOML, JSONC)
+        run: ./validate.sh
+
+      - name: Summary
+        if: always()
+        run: echo "Validate ${{ job.status }} — commit ${{ github.sha }}"

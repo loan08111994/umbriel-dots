@@ -2,7 +2,7 @@
 # ==============================================================================
 # umbriel-dots installer
 # Umbriel compositor + Noctalia shell + qylock + MikuPlymouth
-# Repo: https://github.com/<you>/umbriel-dots
+# Repo: https://github.com/loan08111994/umbriel-dots
 # ==============================================================================
 
 set -euo pipefail

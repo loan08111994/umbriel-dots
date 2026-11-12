@@ -418,7 +418,9 @@ if [ "$LOGIN_SHELL" = "$(command -v fish)" ]; then
 else
     log "Login shell hiện tại: $LOGIN_SHELL (không phải fish)"
     if [[ "$(ask "Đổi login shell sang fish (chsh)?")" == "y" ]]; then
-        if chsh -s "$(command -v fish)" "$(id -un)"; then
+        # sudo chsh (root) — không hỏi password user; dùng chung sudo timestamp
+        # đã cache từ các step trước (pacman/lotus/sddm) → chỉ nhập 1 password cả install
+        if sudo chsh -s "$(command -v fish)" "$(id -un)"; then
             ok "Login shell → fish (hiệu lực lần login sau)"
         else
             warn "chsh thất bại — chạy tay: chsh -s /usr/bin/fish"

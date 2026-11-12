@@ -99,6 +99,11 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-
 #   Cờ -y / --yes: trả lời YES tự động cho toàn bộ prompt — cài non-interactive:
 ./install.sh --yes
 #   (sudo password vẫn phải nhập tay khi pacman/MikuPlymouth hỏi)
+#
+# Lưu ý: install.sh KHÔNG đổi login shell trừ khi bạn đồng ý ở prompt cuối
+# (chsh → fish). Máy nào login shell là bash/zsh mà không đổi thì configs fish
+# vẫn deploy nhưng chỉ có tác dụng khi chạy fish, và env IM vars sẽ lấy từ
+# .zshenv/.bashrc thay vì fish.
 
 # 4. Reboot (để Plymouth ăn mkinitcpio), vào session Umbriel
 ```

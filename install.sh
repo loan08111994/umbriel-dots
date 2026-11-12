@@ -38,7 +38,7 @@ for arg in "$@"; do
         -h|--help)
             echo "Usage: ./install.sh [-y|--yes]"
             echo "  -y, --yes   Trả lời YES tự động cho toàn bộ prompt"
-            echo "              (packages, paru, MikuPlymouth, timer, CozyPixels wallpapers)"
+            echo "              (packages, paru, MikuPlymouth, timer, wallpapers, chsh fish)"
             echo "              Lưu ý: sudo password vẫn phải nhập tay khi được hỏi."
             exit 0 ;;
         *) die "Unknown option: $arg (dùng --help)" ;;
@@ -348,6 +348,27 @@ else
         rm -rf "$TMP_COZY"
     else
         warn "Skipped. Cài sau: git clone --depth 1 $COZY_URL rồi chép nội dung vào ~/Pictures/Wallpapers"
+    fi
+fi
+
+# ==============================================================================
+# Step 6: Login shell — configs fish cần fish làm login shell
+# (fish config.fish đặt env IM trong block `is-login`; umbriel khởi từ shell login)
+# ==============================================================================
+LOGIN_SHELL="$(getent passwd "$(id -un)" | cut -d: -f7)"
+readonly LOGIN_SHELL
+if [ "$LOGIN_SHELL" = "$(command -v fish)" ]; then
+    ok "Login shell đã là fish — không cần đổi"
+else
+    log "Login shell hiện tại: $LOGIN_SHELL (không phải fish)"
+    if [[ "$(ask "Đổi login shell sang fish (chsh)?")" == "y" ]]; then
+        if chsh -s "$(command -v fish)" "$(id -un)"; then
+            ok "Login shell → fish (hiệu lực lần login sau)"
+        else
+            warn "chsh thất bại — chạy tay: chsh -s /usr/bin/fish"
+        fi
+    else
+        warn "Giữ login shell cũ. Đổi sau: chsh -s /usr/bin/fish"
     fi
 fi
 

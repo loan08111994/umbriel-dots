@@ -341,7 +341,7 @@ ui_scale = 0.80000000447034836
 
 [theme]
 builtin = "Noctalia"
-community_palette = "Catppuccin Lavender"
+community_palette = "ADW"
 mode = "dark"
 source = "wallpaper"
 wallpaper_scheme = "m3-content"

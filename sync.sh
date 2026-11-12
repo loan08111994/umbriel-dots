@@ -72,6 +72,12 @@ for pair in "${EXTRA_FILES[@]}"; do
     [ -f "$src" ] && cp "$src" "$dst"
 done
 
+# Logo/pfps (nhỏ, mirror ngược cả thư mục)
+if [ -d "$HOME/Pictures/Pfps-and-logos" ]; then
+    mkdir -p "$REPO_DIR/wallpapers/Pfps-and-logos"
+    rsync -a --delete "$HOME/Pictures/Pfps-and-logos/" "$REPO_DIR/wallpapers/Pfps-and-logos/"
+fi
+
 # ------------------------------------------------------------------------------
 # Bước 2: xem có gì thay đổi không
 # ------------------------------------------------------------------------------

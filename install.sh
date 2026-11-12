@@ -206,6 +206,41 @@ else
 fi
 
 # ==============================================================================
+# Step 5: Wallpapers (CozyPixels) + logo mặc định
+# ==============================================================================
+# --- Logo / pfps (nhẹ, cài luôn không hỏi) ---
+log "Installing Pfps-and-logos (logo mặc định)..."
+mkdir -p "$HOME/Pictures/Pfps-and-logos"
+if [ -d "$REPO_DIR/wallpapers/Pfps-and-logos" ]; then
+    rsync -a "$REPO_DIR/wallpapers/Pfps-and-logos/" "$HOME/Pictures/Pfps-and-logos/"
+    ok "$HOME/Pictures/Pfps-and-logos — avatar + icon.png cho lockscreen sticker"
+fi
+
+# --- CozyPixels wallpapers (~1.9GB) — HỎI TRƯỚC KHI CÀI ---
+readonly COZY_URL="https://github.com/SleepyCatHey/CozyPixels"
+if [ -d "$HOME/Pictures/Wallpapers/Catppuccin" ]; then
+    ok "CozyPixels wallpapers đã có sẵn ở $HOME/Pictures/Wallpapers — bỏ qua"
+else
+    echo
+    log "CozyPixels: bộ sưu tập wallpaper ~1.9GB (Catppuccin, Nord, One Dark, anime, live...)"
+    read -rp "Download CozyPixels wallpapers vào $HOME/Pictures/Wallpapers? [y/N] " getwps
+    if [[ "${getwps:-}" =~ ^[Yy]$ ]]; then
+        TMP_COZY="$(mktemp -d)"
+        if git clone --depth 1 "$COZY_URL" "$TMP_COZY/CozyPixels"; then
+            mkdir -p "$HOME/Pictures/Wallpapers"
+            rsync -a "$TMP_COZY/CozyPixels/" "$HOME/Pictures/Wallpapers/" \
+                --exclude=.git --exclude=README.md --exclude=LICENSE --exclude=cozypixels-banner.png
+            ok "Wallpapers đã vào $HOME/Pictures/Wallpapers"
+        else
+            warn "Clone CozyPixels thất bại — tự clone: git clone --depth 1 $COZY_URL"
+        fi
+        rm -rf "$TMP_COZY"
+    else
+        warn "Skipped. Cài sau: git clone --depth 1 $COZY_URL rồi chép nội dung vào ~/Pictures/Wallpapers"
+    fi
+fi
+
+# ==============================================================================
 # Done
 # ==============================================================================
 echo

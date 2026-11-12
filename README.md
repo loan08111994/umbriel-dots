@@ -44,10 +44,15 @@ umbriel-dots/
 │   ├── hypr/ niri/       # fallback nếu dùng compositor khác
 │   ├── gtk-3.0/ gtk-4.0/ # noctalia.css theme
 │   └── starship.toml
+├── wallpapers/           # logo mặc định + nguồn wallpapers
+│   ├── Pfps-and-logos/   # avatar mèo khóc + icon.png (lockscreen sticker)
+│   └── (CozyPixels ~1.9GB — install.sh sẽ hỏi trước khi tải về
+│         ~/Pictures/Wallpapers: Catppuccin, Nord, One Dark, anime, live...)
 ├── external/             # git submodules
 │   ├── qylock/           # github.com/Darkkal44/qylock
 │   └── MikuPlymouth/     # github.com/Thang1191/MikuPlymouth
 ├── install.sh
+├── sync.sh               # đồng bộ ngược máy → repo
 └── README.md
 ```
 
@@ -70,6 +75,9 @@ paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quicksh
 #   → hỏi ý muốn cài MikuPlymouth (cần sudo, sửa mkinitcpio + grub)
 #   → hỏi ý muốn bật miku-rotate.timer: tự chạy install.sh mỗi ngày 1 phút
 #     sau boot để xoay vòng đủ 37 clips (Plymouth chỉ giữ ~10 clips/lần)
+#   → cài logo mặc định vào ~/Pictures/Pfps-and-logos (avatar + icon.png)
+#   → HỎI trước khi tải CozyPixels wallpapers (~1.9GB) về ~/Pictures/Wallpapers
+#     (bỏ qua tự động nếu máy đã có sẵn)
 
 # 4. Reboot (để Plymouth ăn mkinitcpio), vào session Umbriel
 ```
@@ -98,4 +106,5 @@ Danh sách đầy đủ: `~/.config/umbriel/config.toml` → `[keybinds]`.
 - [Noctara-Dots](https://github.com/deadduck-09/noctara-dots) — base rice, nhiều desktop configs xuất phát từ đây
 - [qylock](https://github.com/Darkkal44/qylock) — lockscreen
 - [MikuPlymouth](https://github.com/Thang1191/MikuPlymouth) — boot splash
+- [CozyPixels](https://github.com/SleepyCatHey/CozyPixels) — wallpaper collection + logo mèo
 - [Noctalia](https://github.com/noctalia-dev/noctalia-shell) + [Umbriel](https://docs.noctalia.dev/umbriel/) — shell & compositor

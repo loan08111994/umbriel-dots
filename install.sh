@@ -153,6 +153,10 @@ done
 # zsh lives in $HOME, not ~/.config
 [ -f "$HOME/.zshrc" ] && mv "$HOME/.zshrc" "$BACKUP_DIR/"
 [ -f "$HOME/.p10k.zsh" ] && mv "$HOME/.p10k.zsh" "$BACKUP_DIR/"
+[ -f "$HOME/.zshenv" ] && mv "$HOME/.zshenv" "$BACKUP_DIR/"
+# bash too
+[ -f "$HOME/.bashrc" ] && mv "$HOME/.bashrc" "$BACKUP_DIR/"
+[ -f "$HOME/.bash_profile" ] && mv "$HOME/.bash_profile" "$BACKUP_DIR/"
 # Noctalia state (settings thật sự của `noctalia settings` UI)
 if [ -d "$HOME/.local/state/noctalia" ]; then
     mkdir -p "$BACKUP_DIR/noctalia-state"
@@ -204,6 +208,20 @@ fi
 if [ -f "$CONFIGS_DIR/zsh/p10k.zsh" ]; then
     cp "$CONFIGS_DIR/zsh/p10k.zsh" "$HOME/.p10k.zsh"
     ok "$HOME/.p10k.zsh"
+fi
+if [ -f "$CONFIGS_DIR/zsh/zshenv" ]; then
+    cp "$CONFIGS_DIR/zsh/zshenv" "$HOME/.zshenv"
+    ok "$HOME/.zshenv"
+fi
+
+# bash (env IM vars + aliases)
+if [ -f "$CONFIGS_DIR/bash/bashrc" ]; then
+    cp "$CONFIGS_DIR/bash/bashrc" "$HOME/.bashrc"
+    ok "$HOME/.bashrc"
+fi
+if [ -f "$CONFIGS_DIR/bash/bash_profile" ]; then
+    cp "$CONFIGS_DIR/bash/bash_profile" "$HOME/.bash_profile"
+    ok "$HOME/.bash_profile"
 fi
 
 # fcitx5: profile có sẵn IM "lotus" (thêm Lotus từ fcitx5-configtool trên máy cũ

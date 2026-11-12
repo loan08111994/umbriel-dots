@@ -12,7 +12,7 @@
 # ==============================================================================
 # General
 [general]
-autostart = ["noctalia"]
+autostart = ["noctalia", "fcitx5 -d"]
 # mod_key = "Super"          # mặc định là Super khi chạy native
 focus_on_activate = false    # true nếu muốn app tự focus khi request activation
 show_cheatsheet = false     # hiển thị cheat sheet keybind lúc khởi động (off nếu đã quen)

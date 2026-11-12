@@ -47,6 +47,9 @@ readonly EXTRA_FILES=(
     "$HOME/.config/kdeglobals:$REPO_DIR/configs/kdeglobals"
     "$HOME/.zshrc:$REPO_DIR/configs/zsh/zshrc"
     "$HOME/.p10k.zsh:$REPO_DIR/configs/zsh/p10k.zsh"
+    "$HOME/.zshenv:$REPO_DIR/configs/zsh/zshenv"
+    "$HOME/.bashrc:$REPO_DIR/configs/bash/bashrc"
+    "$HOME/.bash_profile:$REPO_DIR/configs/bash/bash_profile"
 )
 
 readonly GREEN='\033[0;32m'

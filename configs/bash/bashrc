@@ -1,0 +1,17 @@
+#
+# ~/.bashrc
+#
+
+# Input method (fcitx5) — trước cái check interactive để bash non-login cũng nhận
+export GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx GLFW_IM_MODULE=ibus
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+PS1='[\u@\h \W]\$ '
+
+# SLSsteam: Add wrapper to PATH
+export PATH="$HOME/.local/share/SLSsteam/path:$PATH"

@@ -119,9 +119,9 @@ sudo systemctl enable --now fcitx5-lotus-server@$(whoami).service  # system unit
 
 Config trong repo đã có sẵn phần còn lại:
 
-- **`configs/fish/config.fish`** — env vars IM (`GTK_IM_MODULE`, `QT_IM_MODULE`, `XMODIFIERS=@im=fcitx`...), đặt trong block `is-login` — Umbriel khởi từ fish login nên mọi app kế thừa
+- **`configs/fish/config.fish`**, **`configs/zsh/zshenv`**, **`configs/bash/bashrc`** — env vars IM (`GTK_IM_MODULE`, `QT_IM_MODULE`, `XMODIFIERS=@im=fcitx`...) đặt cho cả 3 shell: fish (block `is-login`), zsh (`.zshenv` — đọc bởi mọi invocation), bash (`.bashrc` — trước check interactive). Umbriel khởi từ shell nào cũng kế thừa
 - **`configs/fcitx5/profile`** — `DefaultIM=lotus` + layout `us`
-- **Autostart:** không cần khai báo — package fcitx5 drop XDG autostart (`/etc/xdg/autostart/org.fcitx.Fcitx5.desktop`), systemd user tự chạy khi session Umbriel lên. Muốn chắc chắn thì thêm `"fcitx5"` vào `[general].autostart`
+- **Autostart:** `[general].autostart = ["noctalia", "fcitx5 -d"]` trong `configs/umbriel/config.toml` (lớp XDG autostart của package fcitx5 cũng tự chạy — 2 lớp không xung đột, fcitx5 single-instance)
 
 Dùng: `Ctrl+Space` bật/tắt tiếng Việt • settings trong `fcitx5-configtool` hoặc icon Lotus ở tray Noctalia.
 

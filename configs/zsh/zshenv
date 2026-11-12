@@ -1,0 +1,4 @@
+# Input method (fcitx5) — .zshenv được đọc bởi MỌI invocation zsh
+# (login, interactive, script) nên an toàn nhất để đặt env vars
+export GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx GLFW_IM_MODULE=ibus

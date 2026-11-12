@@ -26,6 +26,17 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_DIR
 readonly CONFIGS_DIR="$REPO_DIR/configs"
 readonly EXTERNAL_DIR="$REPO_DIR/external"
+
+# Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
+# --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.
+if [ -f "$REPO_DIR/.gitmodules" ] && [ ! -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
+    log "Submodules thiếu — tự init (git submodule update --init --recursive)..."
+    if ( cd "$REPO_DIR" && git submodule update --init --recursive ); then
+        ok "Submodules sẵn sàng"
+    else
+        warn "Init submodules thất bại (mạng?) — chạy tay: cd $REPO_DIR && git submodule update --init --recursive"
+    fi
+fi
 TIMESTAMP="$(date +%Y-%m-%d-%H%M%S)"
 readonly TIMESTAMP
 readonly BACKUP_DIR="$HOME/.config-backup-$TIMESTAMP"

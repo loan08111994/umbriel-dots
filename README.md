@@ -101,7 +101,9 @@ paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-
 #
 #   The -y / --yes flag auto-answers YES to every prompt for a non-interactive run:
 ./install.sh --yes
-#   (sudo password must still be typed manually when pacman/MikuPlymouth prompt)
+#   (sudo password must still be typed manually when pacman/MikuPlymouth prompt;
+#    pacman --noconfirm auto-picks the default provider when a package has
+#    multiple sources — CachyOS ships extra + cachyos-extra-* in parallel)
 #
 # Note: install.sh does NOT change your login shell unless you agree at the final
 # prompt (chsh → fish). On machines keeping bash/zsh as login shell, fish configs

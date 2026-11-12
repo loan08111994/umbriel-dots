@@ -39,6 +39,8 @@ for arg in "$@"; do
             echo "Usage: ./install.sh [-y|--yes]"
             echo "  -y, --yes   Trả lời YES tự động cho toàn bộ prompt"
             echo "              (packages, paru, MikuPlymouth, timer, wallpapers, chsh fish)"
+            echo "              Pacman/paru dùng --noconfirm: chọn default provider (=1)"
+            echo "              khi package có nhiều nguồn (CachyOS extra + cachyos-extra-*)."
             echo "              Lưu ý: sudo password vẫn phải nhập tay khi được hỏi."
             exit 0 ;;
         *) die "Unknown option: $arg (dùng --help)" ;;
@@ -58,6 +60,13 @@ ask() {
         if [[ "${reply:-}" =~ ^[Yy]$ ]]; then echo "y"; else echo "n"; fi
     fi
 }
+
+# paru flags — --yes mode: --noconfirm để AUR cũng chạy hết không vướng prompt
+PARU_FLAGS=(--needed)
+if [ "$ASSUME_YES" -eq 1 ]; then
+    PARU_FLAGS+=(--noconfirm)
+fi
+readonly -a PARU_FLAGS
 
 # --- What we deploy ---
 readonly CONFIG_ITEMS=(
@@ -113,7 +122,9 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
         ok "Repo packages đủ hết rồi"
     else
         log "Repo packages thiếu: ${MISSING_PKGS[*]}"
-        if sudo pacman -S --needed "${MISSING_PKGS[@]}"; then
+        # pacman --noconfirm: tự chọn default provider (=1) khi package có nhiều
+    # sources (CachyOS có extra + cachyos-extra-* song song) — không hỏi số nữa
+    if sudo pacman -S --needed --noconfirm "${MISSING_PKGS[@]}"; then
             ok "Repo packages đã cài xong"
         else
             warn "pacman cài lỗi — xem output ở trên, thiếu gì sẽ phải cài tay"
@@ -144,10 +155,10 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     elif ! command -v paru >/dev/null 2>&1; then
         warn "Thiếu AUR packages: ${AUR_MISSING[*]}"
         if [[ "$(ask "Thử cài paru qua pacman rồi chạy tiếp?")" == "y" ]]; then
-            if sudo pacman -S --needed paru; then
+            if sudo pacman -S --needed --noconfirm paru; then
                 for p in "${AUR_MISSING[@]}"; do
                     log "Cài AUR: $p"
-                    paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
+                    paru -S "${PARU_FLAGS[@]}" "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
                 done
             else
                 warn "pacman không có paru — cài tay: paru -S paru-bin (AUR) hoặc dùng yay thay thế"
@@ -158,7 +169,7 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     else
         for p in "${AUR_MISSING[@]}"; do
             log "Cài AUR: $p"
-            paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
+            paru -S "${PARU_FLAGS[@]}" "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
         done
     fi
 fi

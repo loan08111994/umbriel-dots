@@ -9,10 +9,12 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # --- Paths ---
-readonly REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_DIR
 readonly CONFIGS_DIR="$REPO_DIR/configs"
 readonly EXTERNAL_DIR="$REPO_DIR/external"
-readonly TIMESTAMP="$(date +%Y-%m-%d-%H%M%S)"
+TIMESTAMP="$(date +%Y-%m-%d-%H%M%S)"
+readonly TIMESTAMP
 readonly BACKUP_DIR="$HOME/.config-backup-$TIMESTAMP"
 
 # --- Colors ---
@@ -80,7 +82,7 @@ log "Deploying configs..."
 for item in "${CONFIG_ITEMS[@]}"; do
     [ -d "$CONFIGS_DIR/$item" ] || { warn "Skipping missing $item"; continue; }
     rsync -a "$CONFIGS_DIR/$item/" "$HOME/.config/$item/"
-    ok "~/.config/$item"
+    ok "$HOME/.config/$item"
 done
 
 cp "$CONFIGS_DIR/starship.toml" "$HOME/.config/starship.toml" 2>/dev/null || warn "starship.toml not found"

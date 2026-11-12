@@ -12,7 +12,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-readonly REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_DIR
 readonly CONFIGS_DIR="$REPO_DIR/configs"
 readonly LIVE_CONFIG="$HOME/.config"
 
@@ -44,7 +45,6 @@ readonly EXTRA_FILES=(
 
 readonly GREEN='\033[0;32m'
 readonly CYAN='\033[0;36m'
-readonly YELLOW='\033[0;33m'
 readonly NC='\033[0m'
 
 log() { echo -e "${CYAN}::${NC} $*"; }
@@ -88,7 +88,8 @@ echo
 # ------------------------------------------------------------------------------
 # Bước 3: commit + push
 # ------------------------------------------------------------------------------
-readonly DEFAULT_MSG="sync: update configs from machine ($(date +%Y-%m-%d\ %H:%M))"
+DEFAULT_MSG="sync: update configs from machine ($(date +%Y-%m-%d\ %H:%M))"
+readonly DEFAULT_MSG
 read -rp "Commit message [${DEFAULT_MSG}]: " MSG || MSG=""
 MSG="${MSG:-$DEFAULT_MSG}"
 

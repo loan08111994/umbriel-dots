@@ -19,7 +19,7 @@ readonly LOG_FILE
 set -E   # ERR trap chạy cả trong hàm/subshell
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-trap 'echo -e "${RED}✘ Script FAILED tại dòng $LINENO (exit=$?) — xem log: $LOG_FILE${NC}" >&2' ERR
+trap 'echo -e "${RED:-}✘ Script FAILED tại dòng $LINENO (exit=$?) — xem log: $LOG_FILE${NC:-}" >&2' ERR
 
 # --- Paths ---
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,16 +27,6 @@ readonly REPO_DIR
 readonly CONFIGS_DIR="$REPO_DIR/configs"
 readonly EXTERNAL_DIR="$REPO_DIR/external"
 
-# Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
-# --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.
-if [ -f "$REPO_DIR/.gitmodules" ] && [ ! -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
-    log "Submodules thiếu — tự init (git submodule update --init --recursive)..."
-    if ( cd "$REPO_DIR" && git submodule update --init --recursive ); then
-        ok "Submodules sẵn sàng"
-    else
-        warn "Init submodules thất bại (mạng?) — chạy tay: cd $REPO_DIR && git submodule update --init --recursive"
-    fi
-fi
 TIMESTAMP="$(date +%Y-%m-%d-%H%M%S)"
 readonly TIMESTAMP
 readonly BACKUP_DIR="$HOME/.config-backup-$TIMESTAMP"
@@ -55,6 +45,18 @@ warn() { echo -e "${YELLOW}!${NC} $*"; }
 die()  { echo -e "${RED}✘${NC} $*" >&2; exit 1; }
 
 log "Log file: $LOG_FILE"
+
+# Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
+# --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.
+# (Đặt SAU khi định nghĩa log/ok/warn — hàm màu phải có trước khi gọi.)
+if [ -f "$REPO_DIR/.gitmodules" ] && [ ! -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
+    log "Submodules thiếu — tự init (git submodule update --init --recursive)..."
+    if ( cd "$REPO_DIR" && git submodule update --init --recursive ); then
+        ok "Submodules sẵn sàng"
+    else
+        warn "Init submodules thất bại (mạng?) — chạy tay: cd $REPO_DIR && git submodule update --init --recursive"
+    fi
+fi
 
 # --- Flags ---
 ASSUME_YES=0

@@ -83,7 +83,9 @@ cd umbriel-dots
 sudo pacman -S --needed umbriel noctalia xdg-desktop-portal-umbriel quickshell xwayland-satellite nwg-look \
     neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code \
     zsh cachyos-zsh-config zsh-theme-powerlevel10k fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool \
-    gvfs udisks2 thunar-volman fzf sddm
+    gvfs udisks2 thunar-volman fzf sddm \
+    qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg \
+    gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly
 # AUR only for: GUI apps + fcitx5-lotus (+ core -git packages on plain Arch
 # which lacks the CachyOS repos)
 paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin

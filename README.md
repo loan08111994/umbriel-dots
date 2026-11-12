@@ -80,7 +80,8 @@ cd umbriel-dots
 #    paru chỉ lo phần AUR còn thiếu. Cài tay thì:
 sudo pacman -S --needed umbriel noctalia xdg-desktop-portal-umbriel quickshell xwayland-satellite nwg-look \
     neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code \
-    zsh cachyos-zsh-config zsh-theme-powerlevel10k fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool
+    zsh cachyos-zsh-config zsh-theme-powerlevel10k fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool \
+    gvfs udisks2 thunar-volman
 # AUR chỉ cần cho: GUI apps + fcitx5-lotus + (Arch thường không có repo CachyOS thì thêm core -git)
 paru -S --needed zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin
 

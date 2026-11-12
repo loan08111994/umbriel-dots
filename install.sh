@@ -75,7 +75,8 @@ if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
     done
     # Packages không có binary riêng — check trực tiếp bằng pacman -Q
-    readonly DIRECT_PKGS=(xdg-desktop-portal-umbriel fcitx5-gtk fcitx5-qt cachyos-zsh-config)
+    readonly DIRECT_PKGS=(xdg-desktop-portal-umbriel fcitx5-gtk fcitx5-qt cachyos-zsh-config \
+        gvfs udisks2 thunar-volman)
     for p in "${DIRECT_PKGS[@]}"; do
         pacman -Q "$p" >/dev/null 2>&1 || MISSING_PKGS+=("$p")
     done

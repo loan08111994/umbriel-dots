@@ -65,8 +65,9 @@ cd umbriel-dots
 
 # 2. Cài deps — install.sh sẽ tự hỏi: pacman trước cho repo packages,
 #    paru chỉ lo phần AUR còn thiếu. Cài tay thì:
-sudo pacman -S --needed neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck
-paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell
+sudo pacman -S --needed neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck thunar code
+paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell \
+    zen-browser-bin helium-browser-bin spotify obsidian-bin
 
 # 3. Chạy installer (tự backup config cũ vào ~/.config-backup-<timestamp>)
 ./install.sh

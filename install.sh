@@ -67,8 +67,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 read -rp "Install missing packages? [y/N] " instpkgs
 if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
     # --- 1) Repo packages qua pacman ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck thunar code)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -86,7 +86,9 @@ if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
     fi
 
     # --- 2) AUR packages qua paru (những gì pacman không có) ---
-    readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
+    # Core: umbriel/noctalia stack | GUI: zen, helium, spotify, obsidian
+    readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell \
+                       zen-browser-bin helium-browser-bin spotify obsidian-bin)
     AUR_MISSING=()
     for p in "${AUR_PKGS[@]}"; do
         pacman -Q "$p" >/dev/null 2>&1 || AUR_MISSING+=("$p")

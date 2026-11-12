@@ -41,6 +41,8 @@ readonly ITEMS=(
 readonly EXTRA_FILES=(
     "$LIVE_CONFIG/starship.toml:$REPO_DIR/configs/starship.toml"
     "$HOME/.gtkrc-2.0:$REPO_DIR/configs/gtkrc-2.0"
+    "$HOME/.local/state/noctalia/settings.toml:$REPO_DIR/configs/noctalia-state/settings.toml"
+    "$HOME/.local/state/noctalia/state.toml:$REPO_DIR/configs/noctalia-state/state.toml"
 )
 
 readonly GREEN='\033[0;32m'

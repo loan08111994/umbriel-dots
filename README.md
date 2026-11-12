@@ -28,6 +28,7 @@ Dotfile cá nhân được extract trực tiếp từ máy đang chạy, gồm:
 
 - **Umbriel** — compositor native của hệ Noctalia ([docs](https://docs.noctalia.dev/umbriel/)), config đã tinh chỉnh keybinds, autostart Noctalia, NVIDIA workaround.
 - **Noctalia shell v5** — settings + user templates + toàn bộ 9 plugins (catwalk, clipper, custom-sticker, dns-switcher, pomodoro, screen-recorder, timer, usb-drive-manager, video-wallpaper).
+  > ⚠️ Settings thật của Noctalia nằm ở `~/.local/state/noctalia/settings.toml` (UI `noctalia settings` ghi vào đây), còn `~/.config/noctalia/settings.toml` chỉ là override layer. Repo này lưu cả hai: `configs/noctalia/` (override) + `configs/noctalia-state/` (settings thật).
 - **qylock** — lockscreen Quickshell anime-style, bind `Mod+Alt+L`.
 - **MikuPlymouth** — boot splash Hatsune Miku với video clips xoay vòng ngẫu nhiên.
 - Bộ desktop configs đi kèm: kitty, fastfetch, cava, btop, nvim, yazi, rmpc, mpd, mpv, fish, starship, GTK 3/4 theme css, và fallback niri/hyprland (từ Noctara-Dots).

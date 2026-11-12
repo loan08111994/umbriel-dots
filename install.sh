@@ -73,6 +73,12 @@ done
 # Loose files
 [ -f "$HOME/.config/starship.toml" ] && mv "$HOME/.config/starship.toml" "$BACKUP_DIR/"
 [ -f "$HOME/.gtkrc-2.0" ] && mv "$HOME/.gtkrc-2.0" "$BACKUP_DIR/"
+# Noctalia state (settings thật sự của `noctalia settings` UI)
+if [ -d "$HOME/.local/state/noctalia" ]; then
+    mkdir -p "$BACKUP_DIR/noctalia-state"
+    cp -a "$HOME/.local/state/noctalia/settings.toml" "$HOME/.local/state/noctalia/state.toml" \
+        "$BACKUP_DIR/noctalia-state/" 2>/dev/null || true
+fi
 ok "Backup done. Restore anytime from: $BACKUP_DIR"
 
 # ==============================================================================
@@ -85,8 +91,16 @@ for item in "${CONFIG_ITEMS[@]}"; do
     ok "$HOME/.config/$item"
 done
 
+# File lẻ: starship.toml, gtkrc-2.0
 cp "$CONFIGS_DIR/starship.toml" "$HOME/.config/starship.toml" 2>/dev/null || warn "starship.toml not found"
 cp "$REPO_DIR/configs/gtkrc-2.0" "$HOME/.gtkrc-2.0" 2>/dev/null || true
+
+# Noctalia settings THẬT nằm ở ~/.local/state/noctalia (UI `noctalia settings` ghi vào đây)
+log "Installing Noctalia state settings..."
+mkdir -p "$HOME/.local/state/noctalia"
+cp "$CONFIGS_DIR/noctalia-state/settings.toml" "$HOME/.local/state/noctalia/settings.toml" 2>/dev/null \
+    || warn "noctalia-state/settings.toml missing"
+cp "$CONFIGS_DIR/noctalia-state/state.toml" "$HOME/.local/state/noctalia/state.toml" 2>/dev/null || true
 ok "Deploy done"
 
 # ==============================================================================

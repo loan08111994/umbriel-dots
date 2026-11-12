@@ -61,6 +61,41 @@ command -v umbriel >/dev/null || warn "umbriel not found in PATH — install it 
 command -v noctalia >/dev/null || warn "noctalia not found in PATH — install it first (https://github.com/noctalia-dev/noctalia-shell)"
 
 # ==============================================================================
+# Step 0.5: Optional — cài packages còn thiếu qua paru (AUR helper)
+# ==============================================================================
+read -rp "Install missing packages via paru? [y/N] " instpkgs
+if [[ "${instpkgs:-}" =~ ^[Yy]$ ]]; then
+    if ! command -v paru >/dev/null 2>&1; then
+        warn "paru not found — cài trước: sudo pacman -S paru (yay cũng thay được nhưng script ưu tiên paru)"
+    else
+        # Repo packages: binary → package name (nvim → neovim, shellcheck → shellcheck...)
+        readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
+        readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck)
+        MISSING_PKGS=()
+        for i in "${!BIN_LIST[@]}"; do
+            command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
+        done
+        if [ "${#MISSING_PKGS[@]}" -gt 0 ]; then
+            log "Cài repo packages: ${MISSING_PKGS[*]}"
+            paru -S --needed "${MISSING_PKGS[@]}" || warn "Một số repo packages cài lỗi — xem output ở trên"
+        else
+            ok "Repo packages đủ hết rồi"
+        fi
+
+        # AUR packages: umbriel + noctalia stack (đi từng package, lỗi thì tiếp tục)
+        readonly AUR_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
+        for p in "${AUR_PKGS[@]}"; do
+            if pacman -Q "$p" >/dev/null 2>&1; then
+                ok "$p đã có sẵn"
+            else
+                log "Cài AUR: $p"
+                paru -S --needed "$p" || warn "Không cài được $p — kiểm tra tên package trên AUR"
+            fi
+        done
+    fi
+fi
+
+# ==============================================================================
 # Step 1: Backup existing configs
 # ==============================================================================
 log "Backing up existing ~/.config items to $BACKUP_DIR ..."

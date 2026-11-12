@@ -58,9 +58,9 @@ umbriel-dots/
 git clone --recurse-submodules https://github.com/loan08111994/umbriel-dots
 cd umbriel-dots
 
-# 2. Cài deps (CachyOS/Arch)
-pacman -S --needed umbriel noctalia-shell kitty fastfetch cava btop \
-    neovim yazi rmpc mpd mpv fish starship rsync quickshell
+# 2. Cài deps — chạy install.sh nó sẽ tự hỏi và cài qua paru, hoặc tay:
+paru -S --needed umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell \
+    neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync shellcheck
 
 # 3. Chạy installer (tự backup config cũ vào ~/.config-backup-<timestamp>)
 ./install.sh

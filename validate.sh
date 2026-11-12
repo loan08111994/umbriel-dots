@@ -27,7 +27,7 @@ if command -v shellcheck >/dev/null 2>&1; then
     shellcheck install.sh sync.sh validate.sh
     pass "shellcheck: install.sh sync.sh validate.sh"
 else
-    skip "shellcheck chưa cài (CI vẫn có, máy cục bộ: pacman -S shellcheck)"
+    skip "shellcheck chưa cài (CI vẫn có, máy cục bộ: paru -S shellcheck)"
 fi
 
 # ------------------------------------------------------------------------------

@@ -46,18 +46,6 @@ die()  { echo -e "${RED}✘${NC} $*" >&2; exit 1; }
 
 log "Log file: $LOG_FILE"
 
-# Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
-# --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.
-# (Đặt SAU khi định nghĩa log/ok/warn — hàm màu phải có trước khi gọi.)
-if [ -f "$REPO_DIR/.gitmodules" ] && [ ! -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
-    log "Submodules thiếu — tự init (git submodule update --init --recursive)..."
-    if ( cd "$REPO_DIR" && git submodule update --init --recursive ); then
-        ok "Submodules sẵn sàng"
-    else
-        warn "Init submodules thất bại (mạng?) — chạy tay: cd $REPO_DIR && git submodule update --init --recursive"
-    fi
-fi
-
 # --- Flags ---
 ASSUME_YES=0
 for arg in "$@"; do
@@ -74,6 +62,24 @@ for arg in "$@"; do
         *) die "Unknown option: $arg (dùng --help)" ;;
     esac
 done
+
+# Xin quyền sudo NGAY ĐẦU — nhập password 1 lần duy nhất lúc script bắt đầu.
+# Các step dài (tải submodule 638MB, wallpaper 1.9GB) có thể vượt 15 phút timestamp
+# của sudo → từng step cần sudo sẽ refresh lại (sudo -v) ngay trước khi chạy.
+log "Xin quyền sudo trước (password nhập 1 lần duy nhất ở đây)..."
+sudo -v || die "Không lấy được quyền sudo — dừng."
+
+# Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
+# --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.
+# (Đặt SAU khi định nghĩa log/ok/warn — hàm màu phải có trước khi gọi.)
+if [ -f "$REPO_DIR/.gitmodules" ] && [ ! -f "$EXTERNAL_DIR/qylock/quickshell.sh" ]; then
+    log "Submodules thiếu — tự init (git submodule update --init --recursive)..."
+    if ( cd "$REPO_DIR" && git submodule update --init --recursive ); then
+        ok "Submodules sẵn sàng"
+    else
+        warn "Init submodules thất bại (mạng?) — chạy tay: cd $REPO_DIR && git submodule update --init --recursive"
+    fi
+fi
 
 # ask <prompt> — in prompt ra terminal và trả về "y"/"n"
 # Chế độ --yes: tự trả "y" không chờ input
@@ -152,6 +158,7 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
         log "Repo packages thiếu: ${MISSING_PKGS[*]}"
         # pacman --noconfirm: tự chọn default provider (=1) khi package có nhiều
     # sources (CachyOS có extra + cachyos-extra-* song song) — không hỏi số nữa
+    sudo -v
     if sudo pacman -S --needed --noconfirm "${MISSING_PKGS[@]}"; then
             ok "Repo packages đã cài xong"
         else
@@ -183,6 +190,7 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     elif ! command -v paru >/dev/null 2>&1; then
         warn "Thiếu AUR packages: ${AUR_MISSING[*]}"
         if [[ "$(ask "Thử cài paru qua pacman rồi chạy tiếp?")" == "y" ]]; then
+            sudo -v
             if sudo pacman -S --needed --noconfirm paru; then
                 for p in "${AUR_MISSING[@]}"; do
                     log "Cài AUR: $p"
@@ -373,6 +381,7 @@ if command -v fcitx5-lotus-server >/dev/null 2>&1; then
     log "Setting up fcitx5-lotus..."
     if ! systemctl is-enabled "fcitx5-lotus-server@$(id -un).service" >/dev/null 2>&1; then
         if [[ "$(ask "Enable fcitx5-lotus-server (system unit + udev rules)?")" == "y" ]]; then
+            sudo -v
             if sudo udevadm control --reload-rules \
                 && sudo udevadm trigger \
                 && sudo modprobe uinput \
@@ -395,6 +404,7 @@ if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
     if [[ "$(ask "Install MikuPlymouth now?")" == "y" ]]; then
         # Pipe 'y' vào: sudo vẫn hỏi password qua tty riêng, còn prompt ẩn nào
         # bên trong script con (mkinitcpio/limine hook...) đều được auto-yes
+        sudo -v
         ( cd "$EXTERNAL_DIR/MikuPlymouth" && printf 'y\ny\ny\ny\ny\ny\n' | sudo bash install.sh ) \
             || warn "MikuPlymouth install failed — run manually: cd $EXTERNAL_DIR/MikuPlymouth && sudo ./install.sh"
     else
@@ -406,12 +416,12 @@ if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
     log "Bonus: Plymouth chỉ giữ được ~10 clips một lúc (giới hạn RAM/initramfs)."
     log "Timer miku-rotate chạy install.sh mỗi ngày 1 phút sau boot để xoay vòng qua đủ 37 clips."
     if [[ "$(ask "Enable daily clip rotation (systemd timer)?")" == "y" ]]; then
+        sudo -v
         if sudo rsync -a --exclude=.git "$EXTERNAL_DIR/MikuPlymouth/" /opt/MikuPlymouth/ \
             && sudo cp /opt/MikuPlymouth/miku-rotate.service /etc/systemd/system/ \
             && sudo cp /opt/MikuPlymouth/miku-rotate.timer /etc/systemd/system/ \
             && sudo systemctl daemon-reload \
-            && sudo systemctl enable --now miku-rotate.timer; then
-            ok "Timer enabled — xem: systemctl list-timers miku-rotate.timer | log: journalctl -u miku-rotate.service"
+            && sudo systemctl enable --now miku-rotate.timer; then            ok "Timer enabled — xem: systemctl list-timers miku-rotate.timer | log: journalctl -u miku-rotate.service"
         else
             warn "Rotation setup failed — làm thủ công: cp external/MikuPlymouth sang /opt/MikuPlymouth rồi enable miku-rotate.timer"
         fi
@@ -484,6 +494,7 @@ else
     if [[ "$(ask "Đổi login shell sang fish (chsh)?")" == "y" ]]; then
         # sudo chsh (root) — không hỏi password user; dùng chung sudo timestamp
         # đã cache từ các step trước (pacman/lotus/sddm) → chỉ nhập 1 password cả install
+        sudo -v
         if sudo chsh -s "$(command -v fish)" "$(id -un)"; then
             ok "Login shell → fish (hiệu lực lần login sau)"
         else
@@ -501,6 +512,7 @@ fi
 # Tự động hoàn toàn — không hỏi (enable + theme đều là thao tác an toàn/khôi phục)
 # ==============================================================================
 if pacman -Q sddm >/dev/null 2>&1; then
+    sudo -v   # refresh timestamp — các step tải nặng trước đó có thể đã vượt 15 phút
     if systemctl is-enabled sddm.service >/dev/null 2>&1; then
         ok "sddm.service đã enabled — bỏ qua"
     else
@@ -514,6 +526,7 @@ if pacman -Q sddm >/dev/null 2>&1; then
 
     # Login theme = cùng theme với lockscreen (đã restore từ repo ở trên) — tự động
     SDDM_THEME="$(cat "$HOME/.config/qylock/theme" 2>/dev/null || echo pixel-dusk-city)"
+    log "SDDM theme sẽ dùng: $SDDM_THEME"
     if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
         ok "SDDM theme $SDDM_THEME đã có sẵn"
     elif [ -d "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" ]; then
@@ -529,6 +542,8 @@ if pacman -Q sddm >/dev/null 2>&1; then
     else
         warn "Theme '$SDDM_THEME' không có trong qylock submodule — bỏ qua cài SDDM theme"
     fi
+else
+    warn "sddm chưa cài — bỏ qua Step 7 (cài sddm rồi chạy lại để có login theme)"
 fi
 
 # ==============================================================================

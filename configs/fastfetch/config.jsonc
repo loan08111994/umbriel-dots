@@ -52,6 +52,15 @@
             "keyColor": "33"
         },
 
+        // Dung lượng ổ cứng: đã dùng / tổng
+        {
+            "type": "disk",
+            "key": "  󰋊 Disk",
+            "keyColor": "33",
+            "format": "{size-used} / {size-total} ({size-percentage})",
+            "showPercentage": true
+        },
+
         "break",
 
         // -- Colors Block --

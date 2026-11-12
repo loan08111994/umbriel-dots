@@ -125,6 +125,23 @@ if [ -f "$EXTERNAL_DIR/MikuPlymouth/install.sh" ]; then
     else
         warn "Skipped. Install later: cd $EXTERNAL_DIR/MikuPlymouth && sudo ./install.sh"
     fi
+
+    # --- Optional: daily clip rotation (all 37 clips) via systemd timer ---
+    echo
+    log "Bonus: Plymouth chỉ giữ được ~10 clips một lúc (giới hạn RAM/initramfs)."
+    log "Timer miku-rotate chạy install.sh mỗi ngày 1 phút sau boot để xoay vòng qua đủ 37 clips."
+    read -rp "Enable daily clip rotation (systemd timer)? [y/N] " rotate
+    if [[ "$rotate" =~ ^[Yy]$ ]]; then
+        sudo rsync -a --exclude=.git "$EXTERNAL_DIR/MikuPlymouth/" /opt/MikuPlymouth/ \
+            && sudo cp /opt/MikuPlymouth/miku-rotate.service /etc/systemd/system/ \
+            && sudo cp /opt/MikuPlymouth/miku-rotate.timer /etc/systemd/system/ \
+            && sudo systemctl daemon-reload \
+            && sudo systemctl enable --now miku-rotate.timer \
+            && ok "Timer enabled — xem: systemctl list-timers miku-rotate.timer | log: journalctl -u miku-rotate.service" \
+            || warn "Rotation setup failed — làm thủ công: cp external/MikuPlymouth sang /opt/MikuPlymouth rồi enable miku-rotate.timer"
+    else
+        warn "Skipped. Enable sau: rsync -a --exclude=.git $EXTERNAL_DIR/MikuPlymouth/ /opt/MikuPlymouth/ && sudo cp /opt/MikuPlymouth/miku-rotate.{service,timer} /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now miku-rotate.timer"
+    fi
 else
     warn "MikuPlymouth submodule not initialized"
 fi

@@ -67,6 +67,8 @@ pacman -S --needed umbriel noctalia-shell kitty fastfetch cava btop \
 #   → deploy toàn bộ ~/.config
 #   → cài qylock vào ~/.local/share/quickshell-lockscreen
 #   → hỏi ý muốn cài MikuPlymouth (cần sudo, sửa mkinitcpio + grub)
+#   → hỏi ý muốn bật miku-rotate.timer: tự chạy install.sh mỗi ngày 1 phút
+#     sau boot để xoay vòng đủ 37 clips (Plymouth chỉ giữ ~10 clips/lần)
 
 # 4. Reboot (để Plymouth ăn mkinitcpio), vào session Umbriel
 ```

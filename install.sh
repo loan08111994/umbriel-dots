@@ -455,7 +455,8 @@ fi
 
 # ==============================================================================
 # Step 7: SDDM display manager — màn hình login dùng cùng theme qylock
-# (SDDM theme pixel-dusk-city = copy của external/qylock/themes/pixel-dusk-city)
+# (SDDM theme = copy của external/qylock/themes/<theme>, tên đọc từ
+#  ~/.config/qylock/theme — tức là lockscreen và login screen luôn đồng bộ)
 # Tự động hoàn toàn — không hỏi (enable + theme đều là thao tác an toàn/khôi phục)
 # ==============================================================================
 if pacman -Q sddm >/dev/null 2>&1; then
@@ -470,21 +471,22 @@ if pacman -Q sddm >/dev/null 2>&1; then
         fi
     fi
 
-    # Login theme = cùng theme với lockscreen (từ qylock submodule) — tự động
-    if [ -d "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" ]; then
-        if [ -d /usr/share/sddm/themes/pixel-dusk-city ]; then
-            ok "SDDM theme pixel-dusk-city đã có sẵn"
+    # Login theme = cùng theme với lockscreen (đã restore từ repo ở trên) — tự động
+    SDDM_THEME="$(cat "$HOME/.config/qylock/theme" 2>/dev/null || echo pixel-dusk-city)"
+    if [ -d "/usr/share/sddm/themes/$SDDM_THEME" ]; then
+        ok "SDDM theme $SDDM_THEME đã có sẵn"
+    elif [ -d "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" ]; then
+        log "Installing $SDDM_THEME SDDM login theme..."
+        if sudo cp -a "$EXTERNAL_DIR/qylock/themes/$SDDM_THEME" /usr/share/sddm/themes/ \
+            && ( mkdir -p /etc/sddm.conf.d \
+                && printf '[Theme]\nCurrent=%s\n' "$SDDM_THEME" \
+                | sudo tee /etc/sddm.conf.d/theme.conf >/dev/null ); then
+            ok "SDDM login theme installed + set làm mặc định ($SDDM_THEME)"
         else
-            log "Installing pixel-dusk-city SDDM login theme..."
-            if sudo cp -a "$EXTERNAL_DIR/qylock/themes/pixel-dusk-city" /usr/share/sddm/themes/ \
-                && ( mkdir -p /etc/sddm.conf.d \
-                    && printf '[Theme]\nCurrent=pixel-dusk-city\n' \
-                    | sudo tee /etc/sddm.conf.d/theme.conf >/dev/null ); then
-                ok "SDDM login theme installed + set làm mặc định"
-            else
-                warn "Thất bại — làm tay: sudo cp -a external/qylock/themes/pixel-dusk-city /usr/share/sddm/themes/"
-            fi
+            warn "Thất bại — làm tay: sudo cp -a external/qylock/themes/$SDDM_THEME /usr/share/sddm/themes/"
         fi
+    else
+        warn "Theme '$SDDM_THEME' không có trong qylock submodule — bỏ qua cài SDDM theme"
     fi
 fi
 

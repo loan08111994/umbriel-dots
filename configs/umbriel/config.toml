@@ -90,6 +90,8 @@ natural_scroll = true
 "Mod+Return" = { action = "spawn kitty", repeat = false }
 "Mod" = "spawn noctalia msg panel-toggle launcher"
 "Mod+Q" = { action = "window-close", repeat = false }
+# Buộc đóng (SIGKILL) cửa sổ đang focus — cho app treo cứng không chịu Mod+Q
+"Mod+Shift+Q" = { action = "window-kill", repeat = false }
 "Mod+Escape" = "session-quit"
 "Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
 

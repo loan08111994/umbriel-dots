@@ -109,6 +109,18 @@ if [ -d "$HOME/.local/share/icons/YAMIS" ]; then
     rsync -a --delete "$HOME/.local/share/icons/YAMIS/" "$REPO_DIR/icons/YAMIS/"
 fi
 
+# Font tự thêm cho qylock themes (upstream bỏ trống font/) — mirror ngược
+# từ clone sống ~/qylock sang fonts/qylock để install.sh patch khi reinstall
+if [ -d "$HOME/qylock/themes" ]; then
+    for src in "$HOME"/qylock/themes/*/font/; do
+        theme="$(basename "$(dirname "$src")")"
+        # chỉ mirror theme CÓ font thật (không phải .gitkeep)
+        [ -n "$(find "$src" -type f ! -name '.gitkeep' -print -quit 2>/dev/null)" ] || continue
+        mkdir -p "$REPO_DIR/fonts/qylock/$theme/font"
+        rsync -a --delete "$src" "$REPO_DIR/fonts/qylock/$theme/font/"
+    done
+fi
+
 # ------------------------------------------------------------------------------
 # Bước 2: xem có gì thay đổi không
 # ------------------------------------------------------------------------------

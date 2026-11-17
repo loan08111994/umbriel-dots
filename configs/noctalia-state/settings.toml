@@ -82,17 +82,17 @@ pre_action_fade_seconds = 5
 
     [idle.behavior.lock]
     action = "lock"
-    enabled = true
+    enabled = false
     timeout = 90.0
 
     [idle.behavior.lock-and-suspend]
     action = "lock_and_suspend"
-    enabled = true
+    enabled = false
     timeout = 420.0
 
     [idle.behavior.screen-off]
     action = "screen_off"
-    enabled = true
+    enabled = false
     timeout = 150.0
 
 [location]
@@ -263,7 +263,7 @@ enabled = [ "dotnetrob/cat", "noctalia/timer", "noctalia/screen_recorder" ]
 
 [shell]
 avatar_path = "/home/nevil/Pictures/Pfps-and-logos/20260621_101944.webp"
-font_family = "JetBrains Mono"
+font_family = "Maple Mono NF CN"
 niri_overview_type_to_launch_enabled = true
 password_style = "random"
 polkit_agent = true

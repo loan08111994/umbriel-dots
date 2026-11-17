@@ -63,6 +63,8 @@ readonly EXTRA_FILES=(
     "$HOME/.bashrc:$REPO_DIR/configs/bash/bashrc"
     "$HOME/.bash_profile:$REPO_DIR/configs/bash/bash_profile"
     "$HOME/.config/qylock/theme:$REPO_DIR/configs/qylock/theme"
+    "$LIVE_CONFIG/mimeapps.list:$REPO_DIR/configs/mimeapps.list"
+    "$LIVE_CONFIG/xdg-terminals.list:$REPO_DIR/configs/xdg-terminals.list"
 )
 
 readonly GREEN='\033[0;32m'

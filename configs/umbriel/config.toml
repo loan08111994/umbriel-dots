@@ -185,7 +185,7 @@ natural_scroll = true
 # Applications — giống niri
 "Mod+B" = { action = "spawn zen-browser", repeat = false }
 "Mod+C" = { action = "spawn code", repeat = false }
-"Mod+E" = { action = "spawn thunar", repeat = false }
+"Mod+E" = { action = "spawn luciole", repeat = false }
 "Mod+Ctrl+M" = { action = "spawn spotify", repeat = false }
 "Mod+Shift+O" = { action = "spawn obsidian", repeat = false }
 

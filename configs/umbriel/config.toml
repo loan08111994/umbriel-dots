@@ -176,8 +176,7 @@ natural_scroll = true
 "Mod+Shift+Space" = { action = "window-move-to-scratchpad", repeat = false }
 "Mod+Space" = "scratchpad-toggle"
 "Mod+Ctrl+Space" = { action = "window-restore-from-scratchpad", repeat = false }
-# Mod+Tab: toggle overview (xem toàn bộ cửa sổ) — scratchpad-focus-next bị thay
-"Mod+Tab" = { action = "overview-toggle", repeat = false }
+"Mod+Tab" = "scratchpad-focus-next"
 
 # ==============================================================================
 # [KEYBINDS BỔ SUNG] — muscle memory từ niri cũ, toàn bộ đặt trên phím trống

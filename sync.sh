@@ -99,6 +99,14 @@ for pair in "${EXTRA_FILES[@]}"; do
     fi
 done
 
+# systemd user units mình quản lý (chỉ 2 file này — không đụng unit của app khác)
+for f in noctalia-widget-fit.service noctalia-widget-fit.timer; do
+    if [ -f "$HOME/.config/systemd/user/$f" ]; then
+        mkdir -p "$REPO_DIR/systemd-user"
+        cp "$HOME/.config/systemd/user/$f" "$REPO_DIR/systemd-user/$f"
+    fi
+done
+
 # Logo/pfps (nhỏ, mirror ngược cả thư mục)
 if [ -d "$HOME/Pictures/Pfps-and-logos" ]; then
     mkdir -p "$REPO_DIR/wallpapers/Pfps-and-logos"

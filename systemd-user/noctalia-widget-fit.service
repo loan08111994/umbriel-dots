@@ -1,0 +1,8 @@
+[Unit]
+Description=Fit Noctalia widgets to the current screen (aspect-aware)
+ConditionPathExists=%h/.local/bin/noctalia-widget-fit
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/noctalia-widget-fit
+Nice=10

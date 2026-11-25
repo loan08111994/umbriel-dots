@@ -324,130 +324,41 @@ cp "$CONFIGS_DIR/noctalia-state/state.toml" "$HOME/.local/state/noctalia/state.t
 
 # --- Noctalia settings: làm cho portable + khớp phần cứng máy đích -------------
 # Repo được sync từ máy gốc (output eDP-1, /home/nevil, wallpaper SleepyCat).
-# Trên máy khác, các giá trị này khiến lockscreen widget + background "biến mất"
-# (widget gắn với output không tồn tại, wallpaper path không tồn tại).
+# Trên máy khác, các giá trị này khiến widget lockscreen/desktop + background
+# "biến mất". Script fit tự đổi output, scale widget theo tỉ lệ màn hình,
+# rewrite path và chọn wallpaper thay thế nếu file gốc không tồn tại.
 log "Adapting Noctalia settings to this machine..."
 NC_OUT="$(detect_output || true)"
 NC_RES="$(detect_resolution "$NC_OUT" || true)"
 [ -n "$NC_OUT" ] && log "Output: $NC_OUT${NC_RES:+ ($NC_RES)}"
-if command -v python3 >/dev/null 2>&1; then
-    NOCTALIA_OUT="$NC_OUT" NOCTALIA_RES="$NC_RES" NOCTALIA_OLD_OUT="eDP-1" \
-    python3 - "$HOME/.local/state/noctalia/settings.toml" \
-              "$HOME/.local/state/noctalia/state.toml" \
-              "$HOME/Pictures/Wallpapers" \
-              "$REPO_DIR/wallpapers" <<'PY' || warn "Không adapt được Noctalia settings — giữ nguyên bản từ repo"
-import glob, os, pathlib, re, sys
-
-settings = pathlib.Path(sys.argv[1])
-state = pathlib.Path(sys.argv[2])
-home = os.environ["HOME"]
-out = (os.environ.get("NOCTALIA_OUT") or "").strip()
-res = (os.environ.get("NOCTALIA_RES") or "").strip()
-old_out = (os.environ.get("NOCTALIA_OLD_OUT") or "eDP-1").strip()
-
-# 1) /home/nevil -> $HOME (settings + state; bước rewrite chung chỉ quét ~/.config)
-for p in (settings, state):
-    if p.exists():
-        t = p.read_text(encoding="utf-8")
-        if "/home/nevil" in t:
-            p.write_text(t.replace("/home/nevil", home), encoding="utf-8")
-t = settings.read_text(encoding="utf-8")
-
-# 2) Output: đổi tên connector cũ -> connector thật của máy này
-if out and out != old_out:
-    n = t.count(old_out)
-    if n:
-        t = t.replace(old_out, out)
-        print(f"   ↳ output {old_out} -> {out} ({n} chỗ)")
-
-# 3) Lockscreen widgets: scale toạ độ nếu độ phân giải khác 1920x1080
-m = re.match(r"^(\d+)x(\d+)$", res or "")
-if m:
-    nw, nh = float(m.group(1)), float(m.group(2))
-    lines = t.splitlines()
-    old_w = old_h = 0.0
-    cur = ""
-    for line in lines:
-        s = line.strip()
-        if s.startswith("["):
-            cur = s
-            continue
-        if cur.startswith("[lockscreen_widgets.widget.") and not cur.endswith(".settings]"):
-            mm = re.match(r"\s*placement_width\s*=\s*([0-9.]+)", line)
-            if mm:
-                old_w = float(mm.group(1))
-            mm = re.match(r"\s*placement_height\s*=\s*([0-9.]+)", line)
-            if mm:
-                old_h = float(mm.group(1))
-    if old_w and old_h and (abs(old_w - nw) > 0.5 or abs(old_h - nh) > 0.5):
-        sx, sy = nw / old_w, nh / old_h
-        def fnum(v):
-            return ("%.2f" % v).rstrip("0").rstrip(".") or "0"
-        new_lines = []
-        cur = ""
-        for line in lines:
-            s = line.strip()
-            if s.startswith("["):
-                cur = s
-                new_lines.append(line)
-                continue
-            if cur.startswith("[lockscreen_widgets.widget.") and not cur.endswith(".settings]"):
-                mm = re.match(r"(\s*)(cx|box_width)(\s*=\s*)([0-9.]+)", line)
-                if mm:
-                    new_lines.append(f"{mm.group(1)}{mm.group(2)}{mm.group(3)}{fnum(float(mm.group(4)) * sx)}")
-                    continue
-                mm = re.match(r"(\s*)(cy|box_height)(\s*=\s*)([0-9.]+)", line)
-                if mm:
-                    new_lines.append(f"{mm.group(1)}{mm.group(2)}{mm.group(3)}{fnum(float(mm.group(4)) * sy)}")
-                    continue
-                mm = re.match(r"(\s*)placement_width(\s*=\s*)([0-9.]+)", line)
-                if mm:
-                    new_lines.append(f"{mm.group(1)}placement_width{mm.group(2)}{nw:.1f}")
-                    continue
-                mm = re.match(r"(\s*)placement_height(\s*=\s*)([0-9.]+)", line)
-                if mm:
-                    new_lines.append(f"{mm.group(1)}placement_height{mm.group(2)}{nh:.1f}")
-                    continue
-            new_lines.append(line)
-        t = "\n".join(new_lines) + "\n"
-        print(f"   ↳ lockscreen widgets scaled {fnum(old_w)}x{fnum(old_h)} -> {fnum(nw)}x{fnum(nh)}")
-
-# 4) Wallpaper: nếu file trong settings không tồn tại, chọn ảnh có sẵn
-def section(text, name):
-    mm = re.search(r"^[ \t]*\[" + re.escape(name) + r"\][ \t]*\n(.*?)(?=^[ \t]*\[|\Z)", text, re.M | re.S)
-    return mm.group(1) if mm else ""
-
-sec = section(t, "wallpaper.default")
-mm = re.search(r'^[ \t]*path[ \t]*=[ \t]*"([^"]*)"', sec, re.M)
-old_path = mm.group(1) if mm else ""
-if old_path and not os.path.isfile(os.path.expanduser(old_path)):
-    candidates = []
-    for root in (sys.argv[3], sys.argv[4]):
-        if not root or not os.path.isdir(root):
-            continue
-        for ext in ("png", "jpg", "jpeg", "webp"):
-            candidates.extend(glob.glob(os.path.join(root, "**", f"*.{ext}"), recursive=True))
-        if candidates:
-            break
-    if candidates:
-        new_path = sorted(candidates, key=lambda p: (p.count(os.sep), p))[0]
-        t = t.replace(old_path, new_path)
-        print(f"   ↳ wallpaper không tồn tại -> {new_path}")
-    else:
-        print(f"   ! wallpaper {old_path} không tồn tại và chưa có ảnh thay thế")
-
-settings.write_text(t, encoding="utf-8")
-PY
+if command -v python3 >/dev/null 2>&1 && [ -f "$REPO_DIR/scripts/noctalia-fit-widgets.py" ]; then
+    python3 "$REPO_DIR/scripts/noctalia-fit-widgets.py" \
+        --output "$NC_OUT" --mode "$NC_RES" \
+        --wallpaper-dir "$HOME/Pictures/Wallpapers" \
+        --wallpaper-dir "$REPO_DIR/wallpapers" \
+        || warn "Không adapt được Noctalia settings — giữ nguyên bản từ repo"
 else
-    warn "Thiếu python3 — bỏ qua adapt output/wallpaper của Noctalia"
+    warn "Thiếu python3 hoặc script fit — bỏ qua adapt output/wallpaper của Noctalia"
 fi
 
-# Nếu Noctalia đang chạy, bảo nó đọc lại settings vừa deploy (tránh ghi đè ngược).
-if pgrep -x noctalia >/dev/null 2>&1; then
-    if noctalia msg config-reload >/dev/null 2>&1; then
-        ok "Noctalia đang chạy — đã reload settings mới"
+# Timer user: tự fit lại widget khi đổi output / độ phân giải (mỗi phút,
+# script tự bỏ qua nếu không có gì đổi). Wrapper trỏ về script trong repo.
+mkdir -p "$HOME/.local/bin" "$HOME/.config/systemd/user"
+cat > "$HOME/.local/bin/noctalia-widget-fit" <<EOF
+#!/usr/bin/env bash
+exec python3 "$REPO_DIR/scripts/noctalia-fit-widgets.py" \\
+  --wallpaper-dir "$HOME/Pictures/Wallpapers" \\
+  --wallpaper-dir "$REPO_DIR/wallpapers" "\$@"
+EOF
+chmod +x "$HOME/.local/bin/noctalia-widget-fit"
+cp "$REPO_DIR/systemd-user/noctalia-widget-fit.service" "$HOME/.config/systemd/user/" 2>/dev/null || true
+cp "$REPO_DIR/systemd-user/noctalia-widget-fit.timer" "$HOME/.config/systemd/user/" 2>/dev/null || true
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user daemon-reload 2>/dev/null || true
+    if systemctl --user enable --now noctalia-widget-fit.timer 2>/dev/null; then
+        ok "noctalia-widget-fit.timer enabled — tự fit widget theo màn hình"
     else
-        warn "Noctalia đang chạy — settings mới sẽ áp dụng sau khi restart: pkill -x noctalia"
+        warn "Không enable được timer — chạy tay: systemctl --user enable --now noctalia-widget-fit.timer"
     fi
 fi
 

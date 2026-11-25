@@ -39,7 +39,9 @@ What `install.sh` does, in order: pacman deps (repo packages only, AUR via paru 
 
 Things that stay manual by design: **sudo password** (asked once; a background keepalive refreshes the timestamp so long downloads never re-prompt), **reboot**, and the **Limine theme** (below) — a live bootloader file is too dangerous to script.
 
-On install, Noctalia's saved state is adapted to the target machine: hardcoded `/home/nevil` → `$HOME`, the `eDP-1` lockscreen widgets / wallpaper-monitor keys → the connected output detected from sysfs, and widget coordinates are scaled if the resolution differs from 1920×1080. If the recorded wallpaper file is missing, the first image in `~/Pictures/Wallpapers` is used instead.
+On install, Noctalia's saved state is adapted to the target machine: hardcoded `/home/nevil` → `$HOME`, the saved output (`eDP-1` on the source machine) → the connected connector detected from sysfs, and **both** lockscreen and desktop widget geometry is rescaled to the current screen. Positions follow each axis, while box sizes use one uniform factor (`min(width-ratio, height-ratio)`) and are clamped inside the screen, so widgets keep their proportions on 16:9, 16:10, ultrawide or 4:3 displays. If the recorded wallpaper is missing, the first image in `~/Pictures/Wallpapers` is used instead.
+
+A user timer (`noctalia-widget-fit.timer`, installed by `install.sh`) re-runs the fitter every minute and only writes settings when the output or resolution actually changes. Run it manually anytime with `python3 ~/umbriel-dots/scripts/noctalia-fit-widgets.py`.
 
 ## Vietnamese input (fcitx5 + Lotus)
 

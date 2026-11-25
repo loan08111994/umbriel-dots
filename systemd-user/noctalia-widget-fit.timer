@@ -1,0 +1,10 @@
+[Unit]
+Description=Keep Noctalia widgets fitted to the active output
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

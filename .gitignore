@@ -4,3 +4,5 @@ backup/
 configs/fcitx5/conf/cached_layouts
 *.save
 *.bak
+__pycache__/
+*.pyc

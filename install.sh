@@ -140,8 +140,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # ==============================================================================
 if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly node)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly nodejs)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -173,7 +173,8 @@ if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     readonly FALLBACK_PKGS=(umbriel-git noctalia-git xdg-desktop-portal-umbriel-git quickshell)
     # Package "thay thế" cũng tính là đã cài (portal không có binary, -git/stable đều được)
     readonly FALLBACK_ALT_PKGS=("" "" "xdg-desktop-portal-umbriel-git" "quickshell")
-    readonly GUI_AUR_PKGS=(visual-studio-code-bin zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin luciole-git)
+    # nodejs ở BIN_LIST: bắt buộc để build spicetify-cli (pnpm postinstall gọi `node`)
+    readonly GUI_AUR_PKGS=(visual-studio-code-bin zen-browser-bin helium-browser-bin spotify obsidian-bin fcitx5-lotus-bin luciole-git spicetify-cli)
     AUR_MISSING=()
     for i in "${!FALLBACK_BINS[@]}"; do
         command -v "${FALLBACK_BINS[$i]}" >/dev/null 2>&1 && continue
@@ -318,8 +319,9 @@ ok "Deploy done"
 
 # ==============================================================================
 # Step 2.5: Spicetify — Spotify theo màu Noctalia
-# Binary chính thức từ GitHub (không cần AUR), cài vào ~/.local/share/spicetify
-# rồi symlink ~/.local/bin. Config + Themes đã deploy ở Step 2; extension
+# Ưu tiên bản AUR `spicetify-cli` (đã cài ở Step 0.5, kèm nodejs để build).
+# Fallback: tải binary chính thức từ GitHub vào ~/.local/share/spicetify khi
+# máy không có paru/AUR. Config + Themes đã deploy ở Step 2; extension
 # noctalia.js do template của Noctalia cài lại khi đổi palette.
 # ==============================================================================
 if ! command -v spotify >/dev/null 2>&1 && [ ! -d /opt/spotify ]; then

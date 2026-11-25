@@ -336,7 +336,7 @@ else
         local bin dir
         bin="$(readlink -f "$(command -v spicetify 2>/dev/null)" 2>/dev/null)" || return 1
         dir="$(dirname "$bin")"
-        [ -d "$dir/jsHelper" ] || [ -d /usr/share/spicetify/jsHelper ] || [ -d /usr/lib/spicetify/jsHelper ]
+        [ -d "$dir/jsHelper" ] || [ -d /usr/share/spicetify/jsHelper ] || [ -d /usr/lib/spicetify/jsHelper ] || [ -d /opt/spicetify-cli/jsHelper ]
     }
 
     if ! command -v spicetify >/dev/null 2>&1 || ! spice_support_ok; then

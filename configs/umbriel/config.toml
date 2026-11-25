@@ -341,4 +341,4 @@ delay_ms = 500
 action = "overview-open"
 
 [include.optional]
-files = ["noctalia.toml"]
+files = []

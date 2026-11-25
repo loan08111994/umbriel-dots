@@ -3,3 +3,4 @@ backup/
 .DS_Store
 configs/fcitx5/conf/cached_layouts
 *.save
+*.bak

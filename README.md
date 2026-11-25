@@ -16,7 +16,9 @@
 
 | Component | Notes |
 |---|---|
-| **Umbriel** + Noctalia v5 | Compositor + shell; wallpaper-driven border colors via Noctalia's builtin Umbriel template (`~/.config/umbriel/noctalia.toml`, auto-reloads on wallpaper change) |
+| **Umbriel** + Noctalia v5 | Compositor + shell. Noctalia templates recolor kitty, btop, cava, GTK/Qt, starship, Hyprland, Niri; Umbriel's own appearance (borders/blur) lives in `configs/umbriel/config.toml` |
+| **Niri / Hyprland / Mango** | Secondary compositor profiles in `configs/{niri,hypr,mango}` — Hyprland uses the new Lua config; keybinds/monitor adapted to this machine |
+| **Spicetify** | Spotify follows the Noctalia palette; CLI from AUR (`spicetify-cli` + `nodejs`), extension `noctalia.js` installed by Noctalia's template |
 | **qylock** lockscreen + SDDM | `Mod+Alt+L` lockscreen; SDDM login uses the **same qylock theme** (theme tracked in `configs/qylock/theme`, currently `R1999_1`) |
 | **MikuPlymouth** | Miku boot splash with rotating clips (`miku-rotate.timer` rotates all 37 clips) |
 | **fcitx5 + Lotus** | Vietnamese input, Wayland-native — see section below |
@@ -33,7 +35,7 @@ cd umbriel-dots
 # → enter sudo password once (timestamp cache), reboot. Done.
 ```
 
-What `install.sh` does, in order: pacman deps (repo packages only, AUR via paru only for what's missing) → deploy configs (auto-backup to `~/.config-backup-<ts>`, auto-rewrite hardcoded `/home/nevil` → your `$HOME`) → qylock lockscreen with the repo theme (**zero prompts**) → qylock fonts patch → fcitx5-lotus server unit → MikuPlymouth (ask) → miku-rotate timer (ask) → CozyPixels wallpapers ~1.9GB (ask, verified ≥100 files after download, clones to disk not tmpfs) → chsh fish (ask) → SDDM enable + qylock theme as login theme (auto). Full log: `~/.cache/umbriel-dots/*.log`.
+What `install.sh` does, in order: pacman deps (repo packages only, AUR via paru only for what's missing) → deploy configs (auto-backup to `~/.config-backup-<ts>`, auto-rewrite hardcoded `/home/nevil` → your `$HOME`) → Spicetify (AUR `spicetify-cli` + `nodejs`, patch Spotify, enable Noctalia extension) → qylock lockscreen with the repo theme (**zero prompts**) → qylock fonts patch → fcitx5-lotus server unit → MikuPlymouth (ask) → miku-rotate timer (ask) → CozyPixels wallpapers ~1.9GB (ask, verified ≥100 files after download, clones to disk not tmpfs) → chsh fish (ask) → SDDM enable + qylock theme as login theme (auto). Full log: `~/.cache/umbriel-dots/*.log`.
 
 Things that stay manual by design: **sudo password**, **reboot**, and the **Limine theme** (below) — a live bootloader file is too dangerous to script.
 
@@ -73,6 +75,8 @@ sudo cp boot/limine/limine-splash.png /boot/limine-splash.png
 ```
 configs/          # live configs, mirrored from ~/.config (+ zsh/bash in $HOME)
 configs/qylock/theme   # chosen lockscreen/SDDM theme (single source of truth)
+configs/hypr/     # Hyprland Lua profile (modules/*.lua + noctalia.lua generated)
+configs/mango/    # MangoWC profile (modules/*.conf + noctalia.conf color snapshot)
 wallpapers/       # logos + pfps (CozyPixels 1.9GB downloaded by install.sh)
 external/         # submodules: qylock, MikuPlymouth, catppuccin-limine
 fonts/qylock/     # fonts upstream doesn't track — patched in by install.sh

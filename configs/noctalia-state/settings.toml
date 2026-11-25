@@ -438,8 +438,8 @@ show_location = false
     colorize_icons = true
 
 [theme]
-builtin = "Noctalia"
-community_palette = "ADW"
+builtin = "Tokyo-Night"
+community_palette = "Cream Espresso"
 mode = "dark"
 source = "wallpaper"
 wallpaper_scheme = "m3-content"

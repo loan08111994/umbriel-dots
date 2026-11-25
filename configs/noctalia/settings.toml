@@ -1,4 +1,0 @@
-config_version = 14
-
-[shell.screenshot]
-directory = "~/Pictures/Screenshots"

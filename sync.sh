@@ -49,6 +49,7 @@ readonly ITEMS=(
     gtk-3.0
     gtk-4.0
     spicetify
+    mango
 )
 
 # File lẻ: "nguồn:đích"

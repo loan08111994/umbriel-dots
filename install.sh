@@ -57,17 +57,43 @@ for arg in "$@"; do
             echo "              (packages, paru, MikuPlymouth, timer, wallpapers, chsh fish)"
             echo "              Pacman/paru dùng --noconfirm: chọn default provider (=1)"
             echo "              khi package có nhiều nguồn (CachyOS extra + cachyos-extra-*)."
-            echo "              Lưu ý: sudo password vẫn phải nhập tay khi được hỏi."
+            echo "              Lưu ý: password sudo chỉ hỏi 1 lần ở đầu; script giữ"
+            echo "              session bằng keepalive nên không hỏi lại giữa chừng."
+            echo "              Nếu đã cấu hình sudo NOPASSWD thì script không hỏi gì."
             exit 0 ;;
         *) die "Unknown option: $arg (dùng --help)" ;;
     esac
 done
 
 # Xin quyền sudo NGAY ĐẦU — nhập password 1 lần duy nhất lúc script bắt đầu.
-# Các step dài (tải submodule 638MB, wallpaper 1.9GB) có thể vượt 15 phút timestamp
-# của sudo → từng step cần sudo sẽ refresh lại (sudo -v) ngay trước khi chạy.
-log "Xin quyền sudo trước (password nhập 1 lần duy nhất ở đây)..."
-sudo -v || die "Không lấy được quyền sudo — dừng."
+# Sau khi xác thực, một keepalive chạy nền refresh timestamp mỗi 60 giây, nên các
+# bước dài (submodule 638MB, wallpaper 1.9GB) không hỏi lại password lần nữa.
+SUDO_KEEPALIVE_PID=""
+start_sudo_keepalive() {
+    ( while sleep 60; do sudo -n true 2>/dev/null || exit 0; done ) &
+    SUDO_KEEPALIVE_PID=$!
+}
+stop_sudo_keepalive() {
+    if [ -n "${SUDO_KEEPALIVE_PID:-}" ]; then
+        kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+        wait "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+        SUDO_KEEPALIVE_PID=""
+    fi
+}
+trap stop_sudo_keepalive EXIT
+
+if sudo -n true 2>/dev/null; then
+    ok "sudo đã có sẵn quyền — không cần nhập password"
+else
+    log "Xin quyền sudo trước (password nhập 1 lần duy nhất ở đây)..."
+    sudo -v || die "Không lấy được quyền sudo — dừng."
+fi
+start_sudo_keepalive
+
+# timestamp_timeout=0 trong sudoers thì không cache được → mọi lệnh sẽ hỏi lại.
+if ! sudo -n true 2>/dev/null; then
+    warn "sudo không cache quyền (timestamp_timeout=0?) — các bước sau có thể hỏi lại password."
+fi
 
 # Submodules PHẢI có nguyên liệu (qylock themes, MikuPlymouth...) — nếu clone thiếu
 # --recurse-submodules thì tự init, không thì SDDM/qylock sẽ cài hụt → theme mặc định.

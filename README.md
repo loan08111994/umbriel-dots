@@ -32,12 +32,12 @@
 git clone https://github.com/loan08111994/umbriel-dots   # submodules auto-init if missing
 cd umbriel-dots
 ./install.sh          # or ./install.sh --yes for zero prompts
-# → enter sudo password once (timestamp cache), reboot. Done.
+# → enter sudo password once (keepalive keeps it alive), reboot. Done.
 ```
 
 What `install.sh` does, in order: pacman deps (repo packages only, AUR via paru only for what's missing) → deploy configs (auto-backup to `~/.config-backup-<ts>`, auto-rewrite hardcoded `/home/nevil` → your `$HOME`) → Spicetify (AUR `spicetify-cli` + `nodejs`, patch Spotify, enable Noctalia extension) → qylock lockscreen with the repo theme (**zero prompts**) → qylock fonts patch → fcitx5-lotus server unit → MikuPlymouth (ask) → miku-rotate timer (ask) → CozyPixels wallpapers ~1.9GB (ask, verified ≥100 files after download, clones to disk not tmpfs) → chsh fish (ask) → SDDM enable + qylock theme as login theme (auto). Full log: `~/.cache/umbriel-dots/*.log`.
 
-Things that stay manual by design: **sudo password**, **reboot**, and the **Limine theme** (below) — a live bootloader file is too dangerous to script.
+Things that stay manual by design: **sudo password** (asked once; a background keepalive refreshes the timestamp so long downloads never re-prompt), **reboot**, and the **Limine theme** (below) — a live bootloader file is too dangerous to script.
 
 ## Vietnamese input (fcitx5 + Lotus)
 

@@ -17,7 +17,7 @@ order = [ "default" ]
     color = "primary"
     concave_edge_corners = false
     contact_shadow = true
-    end = [ "audio_visualizer", "media", "group:g1" ]
+    end = [ "audio_visualizer", "media", "tray", "group:g1" ]
     font_family = "Maple Mono NF CN"
     icon_color = "#FFFFFF"
     margin_ends = 0
@@ -32,6 +32,9 @@ order = [ "default" ]
     widget_spacing = 11
 
         [[bar.default.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        border_width = 1.0
         enabled = true
         fill = "surface_container"
         id = "g1"
@@ -154,17 +157,17 @@ pre_action_fade_seconds = 5
 
     [idle.behavior.lock]
     action = "lock"
-    enabled = true
+    enabled = false
     timeout = 90.0
 
     [idle.behavior.lock-and-suspend]
     action = "lock_and_suspend"
-    enabled = true
+    enabled = false
     timeout = 420.0
 
     [idle.behavior.screen-off]
     action = "screen_off"
-    enabled = true
+    enabled = false
     timeout = 150.0
 
 [location]
@@ -436,7 +439,7 @@ show_location = false
 
 [theme]
 builtin = "Noctalia"
-community_palette = "Espresso Cream"
+community_palette = "ADW"
 mode = "dark"
 source = "wallpaper"
 wallpaper_scheme = "m3-content"

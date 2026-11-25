@@ -121,6 +121,7 @@ readonly CONFIG_ITEMS=(
     niri
     gtk-3.0
     gtk-4.0
+    spicetify
 )
 
 # --- Sanity checks ---
@@ -314,6 +315,93 @@ if grep -rlq "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null; then
 fi
 
 ok "Deploy done"
+
+# ==============================================================================
+# Step 2.5: Spicetify — Spotify theo màu Noctalia
+# Binary chính thức từ GitHub (không cần AUR), cài vào ~/.local/share/spicetify
+# rồi symlink ~/.local/bin. Config + Themes đã deploy ở Step 2; extension
+# noctalia.js do template của Noctalia cài lại khi đổi palette.
+# ==============================================================================
+if ! command -v spotify >/dev/null 2>&1 && [ ! -d /opt/spotify ]; then
+    warn "Spotify chưa cài — bỏ qua Spicetify"
+elif ! command -v curl >/dev/null 2>&1; then
+    warn "Thiếu curl — bỏ qua Spicetify"
+else
+    log "Setting up Spicetify..."
+    SPICE_HOME="$HOME/.local/share/spicetify"
+    readonly SPICE_HOME
+
+    # Binary + thư mục phụ trợ (jsHelper, css-map.json...) phải nằm cạnh nhau.
+    spice_support_ok() {
+        local bin dir
+        bin="$(readlink -f "$(command -v spicetify 2>/dev/null)" 2>/dev/null)" || return 1
+        dir="$(dirname "$bin")"
+        [ -d "$dir/jsHelper" ] || [ -d /usr/share/spicetify/jsHelper ] || [ -d /usr/lib/spicetify/jsHelper ]
+    }
+
+    if ! command -v spicetify >/dev/null 2>&1 || ! spice_support_ok; then
+        SPICE_URL="$(curl -fsSL https://api.github.com/repos/spicetify/cli/releases/latest \
+            | grep -o 'https://[^"]*linux-amd64\.tar\.gz' | head -n1 || true)"
+        if [ -n "$SPICE_URL" ] && mkdir -p "$SPICE_HOME" \
+            && curl -fsSL "$SPICE_URL" -o /tmp/spicetify.tar.gz \
+            && tar -xzf /tmp/spicetify.tar.gz -C "$SPICE_HOME"; then
+            chmod +x "$SPICE_HOME/spicetify"
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$SPICE_HOME/spicetify" "$HOME/.local/bin/spicetify"
+            ok "spicetify $("$SPICE_HOME/spicetify" --version 2>/dev/null || echo '?') → $HOME/.local/bin/spicetify"
+        else
+            warn "Tải spicetify thất bại — tải tay: https://github.com/spicetify/cli/releases"
+        fi
+        rm -f /tmp/spicetify.tar.gz
+    else
+        ok "spicetify đã có: $(spicetify --version 2>/dev/null || echo '?')"
+    fi
+
+    if command -v spicetify >/dev/null 2>&1; then
+        SPOTIFY_PATH=""
+        if [ -d /opt/spotify ]; then
+            SPOTIFY_PATH=/opt/spotify
+        elif [ -x "$HOME/.local/share/spotify-launcher/install/usr/bin/spotify" ]; then
+            SPOTIFY_PATH="$HOME/.local/share/spotify-launcher/install/usr/bin"
+        fi
+
+        if [ -z "$SPOTIFY_PATH" ]; then
+            warn "Không tìm thấy thư mục Spotify — bỏ qua patch"
+        else
+            spicetify config spotify_path "$SPOTIFY_PATH" >/dev/null 2>&1 || true
+            if [ -f "$HOME/.config/spotify/prefs" ]; then
+                spicetify config prefs_path "$HOME/.config/spotify/prefs" >/dev/null 2>&1 || true
+            fi
+            if [ ! -w "$SPOTIFY_PATH" ]; then
+                log "Cần quyền ghi vào $SPOTIFY_PATH..."
+                if sudo -v && sudo chmod a+wr -R "$SPOTIFY_PATH"; then
+                    ok "Đã mở quyền ghi $SPOTIFY_PATH"
+                else
+                    warn "chmod thất bại — chạy tay: sudo chmod a+wr -R $SPOTIFY_PATH"
+                fi
+            fi
+            # Spicetify không patch được khi Spotify đang chạy
+            if pgrep -x spotify >/dev/null 2>&1; then
+                log "Đóng Spotify để patch..."
+                pkill -x spotify || true
+                sleep 2
+            fi
+            if grep -q "spicetify" "$SPOTIFY_PATH/Apps/xpui/index.html" 2>/dev/null; then
+                if spicetify apply >/dev/null; then
+                    ok "Spicetify apply OK"
+                else
+                    warn "spicetify apply lỗi — chạy tay: spicetify apply"
+                fi
+            else
+                if spicetify backup apply >/dev/null; then
+                    ok "Spicetify backup apply OK"
+                else
+                    warn "spicetify backup apply lỗi — chạy tay: spicetify backup apply"
+                fi
+            fi
+        fi
+    fi
+fi
 
 # ==============================================================================
 # Step 3: qylock (Quickshell lockscreen)

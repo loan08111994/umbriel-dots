@@ -136,7 +136,15 @@ widget_order = [ "desktop-widget-0000000000000002", "desktop-widget-000000000000
 
         [desktop_widgets.widget.desktop-widget-0000000000000003.settings]
         background = false
+        background_color = "surface"
+        background_opacity = 0.8
+        background_padding = 10
+        background_radius = 12
+        color = "on_surface"
         font_family = "Maple Mono NF CN"
+        forecast_days = 3
+        shadow = true
+        show_forecast = false
 
 [dock]
 colorize_icons = true

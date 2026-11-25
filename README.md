@@ -39,6 +39,8 @@ What `install.sh` does, in order: pacman deps (repo packages only, AUR via paru 
 
 Things that stay manual by design: **sudo password** (asked once; a background keepalive refreshes the timestamp so long downloads never re-prompt), **reboot**, and the **Limine theme** (below) — a live bootloader file is too dangerous to script.
 
+On install, Noctalia's saved state is adapted to the target machine: hardcoded `/home/nevil` → `$HOME`, the `eDP-1` lockscreen widgets / wallpaper-monitor keys → the connected output detected from sysfs, and widget coordinates are scaled if the resolution differs from 1920×1080. If the recorded wallpaper file is missing, the first image in `~/Pictures/Wallpapers` is used instead.
+
 ## Vietnamese input (fcitx5 + Lotus)
 
 Everything except the AUR package is automated (env vars in all 3 shells, profile, autostart, systemd server unit):

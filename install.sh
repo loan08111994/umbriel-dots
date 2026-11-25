@@ -121,6 +121,36 @@ ask() {
     fi
 }
 
+# detect_output — tên output đang kết nối (eDP-1, HDMI-A-1, DP-1...).
+# Ưu tiên màn laptop (eDP/LVDS/DSI), sau đó connector connected đầu tiên.
+# Dùng sysfs nên chạy được cả trước khi login (compositor chưa bật).
+detect_output() {
+    local f name first=""
+    for f in /sys/class/drm/card*-*/status; do
+        [ -r "$f" ] || continue
+        [ "$(cat "$f" 2>/dev/null)" = "connected" ] || continue
+        name="${f%/status}"; name="${name##*/}"; name="${name#*-}"
+        case "$name" in
+            eDP*|LVDS*|DSI*) printf '%s\n' "$name"; return 0 ;;
+        esac
+        [ -n "$first" ] || first="$name"
+    done
+    [ -n "$first" ] && printf '%s\n' "$first"
+    return 0
+}
+
+# detect_resolution <output> — mode ưu tiên (dòng đầu /sys/.../modes), dạng 1920x1080.
+detect_resolution() {
+    local out="$1" f m
+    [ -n "$out" ] || return 0
+    for f in /sys/class/drm/card*-"$out"/modes; do
+        [ -r "$f" ] || continue
+        m="$(head -n 1 "$f" 2>/dev/null)"
+        [ -n "$m" ] && { printf '%s\n' "$m"; return 0; }
+    done
+    return 0
+}
+
 # paru flags — --yes mode: --noconfirm để AUR cũng chạy hết không vướng prompt
 PARU_FLAGS=(--needed)
 if [ "$ASSUME_YES" -eq 1 ]; then
@@ -292,6 +322,135 @@ cp "$CONFIGS_DIR/noctalia-state/settings.toml" "$HOME/.local/state/noctalia/sett
     || warn "noctalia-state/settings.toml missing"
 cp "$CONFIGS_DIR/noctalia-state/state.toml" "$HOME/.local/state/noctalia/state.toml" 2>/dev/null || true
 
+# --- Noctalia settings: làm cho portable + khớp phần cứng máy đích -------------
+# Repo được sync từ máy gốc (output eDP-1, /home/nevil, wallpaper SleepyCat).
+# Trên máy khác, các giá trị này khiến lockscreen widget + background "biến mất"
+# (widget gắn với output không tồn tại, wallpaper path không tồn tại).
+log "Adapting Noctalia settings to this machine..."
+NC_OUT="$(detect_output || true)"
+NC_RES="$(detect_resolution "$NC_OUT" || true)"
+[ -n "$NC_OUT" ] && log "Output: $NC_OUT${NC_RES:+ ($NC_RES)}"
+if command -v python3 >/dev/null 2>&1; then
+    NOCTALIA_OUT="$NC_OUT" NOCTALIA_RES="$NC_RES" NOCTALIA_OLD_OUT="eDP-1" \
+    python3 - "$HOME/.local/state/noctalia/settings.toml" \
+              "$HOME/.local/state/noctalia/state.toml" \
+              "$HOME/Pictures/Wallpapers" \
+              "$REPO_DIR/wallpapers" <<'PY' || warn "Không adapt được Noctalia settings — giữ nguyên bản từ repo"
+import glob, os, pathlib, re, sys
+
+settings = pathlib.Path(sys.argv[1])
+state = pathlib.Path(sys.argv[2])
+home = os.environ["HOME"]
+out = (os.environ.get("NOCTALIA_OUT") or "").strip()
+res = (os.environ.get("NOCTALIA_RES") or "").strip()
+old_out = (os.environ.get("NOCTALIA_OLD_OUT") or "eDP-1").strip()
+
+# 1) /home/nevil -> $HOME (settings + state; bước rewrite chung chỉ quét ~/.config)
+for p in (settings, state):
+    if p.exists():
+        t = p.read_text(encoding="utf-8")
+        if "/home/nevil" in t:
+            p.write_text(t.replace("/home/nevil", home), encoding="utf-8")
+t = settings.read_text(encoding="utf-8")
+
+# 2) Output: đổi tên connector cũ -> connector thật của máy này
+if out and out != old_out:
+    n = t.count(old_out)
+    if n:
+        t = t.replace(old_out, out)
+        print(f"   ↳ output {old_out} -> {out} ({n} chỗ)")
+
+# 3) Lockscreen widgets: scale toạ độ nếu độ phân giải khác 1920x1080
+m = re.match(r"^(\d+)x(\d+)$", res or "")
+if m:
+    nw, nh = float(m.group(1)), float(m.group(2))
+    lines = t.splitlines()
+    old_w = old_h = 0.0
+    cur = ""
+    for line in lines:
+        s = line.strip()
+        if s.startswith("["):
+            cur = s
+            continue
+        if cur.startswith("[lockscreen_widgets.widget.") and not cur.endswith(".settings]"):
+            mm = re.match(r"\s*placement_width\s*=\s*([0-9.]+)", line)
+            if mm:
+                old_w = float(mm.group(1))
+            mm = re.match(r"\s*placement_height\s*=\s*([0-9.]+)", line)
+            if mm:
+                old_h = float(mm.group(1))
+    if old_w and old_h and (abs(old_w - nw) > 0.5 or abs(old_h - nh) > 0.5):
+        sx, sy = nw / old_w, nh / old_h
+        def fnum(v):
+            return ("%.2f" % v).rstrip("0").rstrip(".") or "0"
+        new_lines = []
+        cur = ""
+        for line in lines:
+            s = line.strip()
+            if s.startswith("["):
+                cur = s
+                new_lines.append(line)
+                continue
+            if cur.startswith("[lockscreen_widgets.widget.") and not cur.endswith(".settings]"):
+                mm = re.match(r"(\s*)(cx|box_width)(\s*=\s*)([0-9.]+)", line)
+                if mm:
+                    new_lines.append(f"{mm.group(1)}{mm.group(2)}{mm.group(3)}{fnum(float(mm.group(4)) * sx)}")
+                    continue
+                mm = re.match(r"(\s*)(cy|box_height)(\s*=\s*)([0-9.]+)", line)
+                if mm:
+                    new_lines.append(f"{mm.group(1)}{mm.group(2)}{mm.group(3)}{fnum(float(mm.group(4)) * sy)}")
+                    continue
+                mm = re.match(r"(\s*)placement_width(\s*=\s*)([0-9.]+)", line)
+                if mm:
+                    new_lines.append(f"{mm.group(1)}placement_width{mm.group(2)}{nw:.1f}")
+                    continue
+                mm = re.match(r"(\s*)placement_height(\s*=\s*)([0-9.]+)", line)
+                if mm:
+                    new_lines.append(f"{mm.group(1)}placement_height{mm.group(2)}{nh:.1f}")
+                    continue
+            new_lines.append(line)
+        t = "\n".join(new_lines) + "\n"
+        print(f"   ↳ lockscreen widgets scaled {fnum(old_w)}x{fnum(old_h)} -> {fnum(nw)}x{fnum(nh)}")
+
+# 4) Wallpaper: nếu file trong settings không tồn tại, chọn ảnh có sẵn
+def section(text, name):
+    mm = re.search(r"^[ \t]*\[" + re.escape(name) + r"\][ \t]*\n(.*?)(?=^[ \t]*\[|\Z)", text, re.M | re.S)
+    return mm.group(1) if mm else ""
+
+sec = section(t, "wallpaper.default")
+mm = re.search(r'^[ \t]*path[ \t]*=[ \t]*"([^"]*)"', sec, re.M)
+old_path = mm.group(1) if mm else ""
+if old_path and not os.path.isfile(os.path.expanduser(old_path)):
+    candidates = []
+    for root in (sys.argv[3], sys.argv[4]):
+        if not root or not os.path.isdir(root):
+            continue
+        for ext in ("png", "jpg", "jpeg", "webp"):
+            candidates.extend(glob.glob(os.path.join(root, "**", f"*.{ext}"), recursive=True))
+        if candidates:
+            break
+    if candidates:
+        new_path = sorted(candidates, key=lambda p: (p.count(os.sep), p))[0]
+        t = t.replace(old_path, new_path)
+        print(f"   ↳ wallpaper không tồn tại -> {new_path}")
+    else:
+        print(f"   ! wallpaper {old_path} không tồn tại và chưa có ảnh thay thế")
+
+settings.write_text(t, encoding="utf-8")
+PY
+else
+    warn "Thiếu python3 — bỏ qua adapt output/wallpaper của Noctalia"
+fi
+
+# Nếu Noctalia đang chạy, bảo nó đọc lại settings vừa deploy (tránh ghi đè ngược).
+if pgrep -x noctalia >/dev/null 2>&1; then
+    if noctalia msg config-reload >/dev/null 2>&1; then
+        ok "Noctalia đang chạy — đã reload settings mới"
+    else
+        warn "Noctalia đang chạy — settings mới sẽ áp dụng sau khi restart: pkill -x noctalia"
+    fi
+fi
+
 # Icon theme YAMIS (yet-another-monochrome) → ~/.local/share/icons
 if [ -d "$REPO_DIR/icons/YAMIS" ]; then
     log "Installing YAMIS icon theme..."
@@ -340,6 +499,11 @@ if grep -rlq "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null; then
     grep -rlZ "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null \
         | xargs -0 -r sed -i "s|/home/nevil|$HOME|g"
     ok "All deployed configs now point to $HOME"
+fi
+# ~/.local/state/noctalia: chỉ file .toml (tránh sửa nhầm plugin clone/Binary)
+if grep -rlq --include='*.toml' "/home/nevil" "$HOME/.local/state/noctalia" 2>/dev/null; then
+    grep -rlZ --include='*.toml' "/home/nevil" "$HOME/.local/state/noctalia" 2>/dev/null \
+        | xargs -0 -r sed -i "s|/home/nevil|$HOME|g"
 fi
 
 ok "Deploy done"

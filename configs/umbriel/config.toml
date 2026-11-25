@@ -39,11 +39,11 @@ lid_close = "umbriel msg output-disable eDP-1"
 lid_open = "umbriel msg output-enable eDP-1"
 
 # ==============================================================================
-# Output — pin cấu hình màn hình (1080p@144.003, scale 1.25, vị trí 0,0)
+# Output — pin cấu hình màn hình (1080p@144.003, scale 1.0, vị trí 0,0)
 [output.eDP-1]
 mode = "1920x1080@144.003"
 position = [0, 0]
-scale = 1.25
+scale = 1.0
 # vrr = "fullscreen"   # bật nếu muốn VRR cho game
 # hdr = "auto"
 

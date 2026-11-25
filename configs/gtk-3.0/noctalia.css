@@ -7,45 +7,45 @@
 /* App-scoped CSS of enabled community GTK extensions; Noctalia maintains this file. */
 @import url("noctalia-extensions.css");
 
-@define-color accent_color #ccd975;
-@define-color accent_bg_color #ccd975;
-@define-color accent_fg_color #2d3400;
+@define-color accent_color #e29578;
+@define-color accent_bg_color #e29578;
+@define-color accent_fg_color #1a120b;
 
-@define-color destructive_bg_color #ffb4ab;
-@define-color destructive_fg_color #690005;
+@define-color destructive_bg_color #c97a7a;
+@define-color destructive_fg_color #1a120b;
 
-@define-color error_bg_color #ffb4ab;
-@define-color error_fg_color #690005;
+@define-color error_bg_color #c97a7a;
+@define-color error_fg_color #1a120b;
 
-@define-color window_bg_color #13140d;
-@define-color window_fg_color #e5e3d7;
+@define-color window_bg_color #1a120b;
+@define-color window_fg_color #ede0d4;
 
-@define-color view_bg_color #13140d;
-@define-color view_fg_color #e5e3d7;
+@define-color view_bg_color #1a120b;
+@define-color view_fg_color #ede0d4;
 
-@define-color headerbar_bg_color #202019;
-@define-color headerbar_fg_color #e5e3d7;
+@define-color headerbar_bg_color #2c1e13;
+@define-color headerbar_fg_color #ede0d4;
 @define-color headerbar_backdrop_color @window_bg_color;
 
-@define-color popover_bg_color #202019;
-@define-color popover_fg_color #e5e3d7;
+@define-color popover_bg_color #2c1e13;
+@define-color popover_fg_color #ede0d4;
 
-@define-color card_bg_color #202019;
-@define-color card_fg_color #e5e3d7;
+@define-color card_bg_color #2c1e13;
+@define-color card_fg_color #ede0d4;
 
-@define-color dialog_bg_color #13140d;
-@define-color dialog_fg_color #e5e3d7;
+@define-color dialog_bg_color #1a120b;
+@define-color dialog_fg_color #ede0d4;
 
-@define-color overview_bg_color #202019;
-@define-color overview_fg_color #e5e3d7;
+@define-color overview_bg_color #2c1e13;
+@define-color overview_fg_color #ede0d4;
 
-@define-color sidebar_bg_color #202019;
-@define-color sidebar_fg_color #e5e3d7;
+@define-color sidebar_bg_color #2c1e13;
+@define-color sidebar_fg_color #ede0d4;
 @define-color sidebar_backdrop_color @window_bg_color;
 @define-color sidebar_border_color @window_bg_color;
 
-@define-color secondary_sidebar_bg_color #13140d;
-@define-color secondary_sidebar_fg_color #e5e3d7;
+@define-color secondary_sidebar_bg_color #1a120b;
+@define-color secondary_sidebar_fg_color #ede0d4;
 
 /* Focused selection states */
 @define-color theme_selected_bg_color @accent_bg_color;

@@ -44,12 +44,9 @@ readonly ITEMS=(
     mpv
     fish
     fcitx5
-    hypr
-    niri
     gtk-3.0
     gtk-4.0
     spicetify
-    mango
 )
 
 # File lẻ: "nguồn:đích"

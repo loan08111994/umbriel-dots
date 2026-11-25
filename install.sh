@@ -117,12 +117,9 @@ readonly CONFIG_ITEMS=(
     mpv
     fish
     fcitx5
-    hypr
-    niri
     gtk-3.0
     gtk-4.0
     spicetify
-    mango
 )
 
 # --- Sanity checks ---
@@ -141,8 +138,8 @@ command -v noctalia >/dev/null || warn "noctalia not found in PATH — install i
 # ==============================================================================
 if [[ "$(ask "Install missing packages?")" == "y" ]]; then
     # --- 1) Repo packages qua pacman (CachyOS repo có sẵn umbriel/noctalia!) ---
-    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly node playerctl)
-    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly nodejs playerctl)
+    readonly BIN_LIST=(nvim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly node gpu-screen-recorder slurp socat mpvpaper cliphist wl-copy wtype)
+    readonly PKG_LIST=(neovim kitty fastfetch cava btop yazi rmpc mpd mpv fish starship rsync git shellcheck umbriel noctalia quickshell xwayland-satellite nwg-look zsh fcitx5 fcitx5-configtool fzf sddm qt6-5compat qt6-svg qt6-multimedia qt6-multimedia-ffmpeg gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly nodejs gpu-screen-recorder slurp socat mpvpaper cliphist wl-clipboard wtype)
     MISSING_PKGS=()
     for i in "${!BIN_LIST[@]}"; do
         command -v "${BIN_LIST[$i]}" >/dev/null 2>&1 || MISSING_PKGS+=("${PKG_LIST[$i]}")
@@ -308,7 +305,7 @@ fi
 # — install chỉ cần cài fcitx5-lotus-bin là nhận ngay)
 
 # Portable paths — /home/nevil hardcode (lấy từ máy gốc) → $HOME của máy đích.
-# Ảnh hưởng tới: keybind Mod+Alt+L (lock.sh), fish, niri fallback, gtkrc, noctalia state.
+# Ảnh hưởng tới: keybind Mod+Alt+L (lock.sh), fish, gtkrc, noctalia state.
 if grep -rlq "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null; then
     log "Rewriting hardcoded /home/nevil → $HOME ..."
     grep -rlZ "/home/nevil" "$HOME/.config" "$HOME/.gtkrc-2.0" 2>/dev/null \

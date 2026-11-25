@@ -33,17 +33,17 @@ SDL_VIDEODRIVER = "wayland"
 QT_QPA_PLATFORMTHEME = "gtk3"
 
 # ==============================================================================
-# Ngắt laptop — tháo màn hình eDP-2 khỏi desktop khi đóng nắp, khôi phục khi mở
+# Ngắt laptop — tháo màn hình eDP-1 khỏi desktop khi đóng nắp, khôi phục khi mở
 [events]
-lid_close = "umbriel msg output-disable eDP-2"
-lid_open = "umbriel msg output-enable eDP-2"
+lid_close = "umbriel msg output-disable eDP-1"
+lid_open = "umbriel msg output-enable eDP-1"
 
 # ==============================================================================
-# Output — pin cấu hình màn hình (khớp niri cũ: 1080p@144, scale 1, vị trí 0,0)
-[output.eDP-2]
+# Output — pin cấu hình màn hình (1080p@144.003, scale 1.25, vị trí 0,0)
+[output.eDP-1]
 mode = "1920x1080@144.003"
 position = [0, 0]
-scale = 1.0
+scale = 1.25
 # vrr = "fullscreen"   # bật nếu muốn VRR cho game
 # hdr = "auto"
 

@@ -1,11 +1,11 @@
 config_version = 20
 
 [accessibility]
-ui_scale = 0.80000000447034836
+ui_scale = 0.8000000044703484
 
 [audio]
 enable_sounds = true
-sound_volume = 0.99999997764825821
+sound_volume = 0.9999999776482582
 
 [bar]
 order = [ "default" ]
@@ -16,7 +16,7 @@ order = [ "default" ]
     margin_ends = 215
     padding = 15
     radius = 80
-    scale = 0.95000000670552254
+    scale = 0.9500000067055225
     start = [ "control-center", "workspaces", "sysmon" ]
     thickness = 33
     widget_spacing = 10
@@ -58,9 +58,11 @@ widget_order = [ "desktop-widget-0000000000000001" ]
     [desktop_widgets.widget.desktop-widget-0000000000000001]
     box_height = 368.0
     box_width = 1344.0
-    cx = 683.0
-    cy = 592.0
+    cx = 546.4000244140625
+    cy = 473.6000061035156
     output = "eDP-1"
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = -0.0
     type = "audio_visualizer"
 
@@ -118,11 +120,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
     box_height = 196.0
     box_width = 720.0
-    cx = 699.0
-    cy = 612.0
+    cx = 559.2000122070312
+    cy = 489.6000061035156
     output = "eDP-1"
-    placement_height = 0.0
-    placement_width = 0.0
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = 0.0
     type = "login_box"
 
@@ -138,6 +140,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
         show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
@@ -166,6 +169,7 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
         show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
@@ -174,11 +178,11 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
     box_height = 144.0
     box_width = 432.0
-    cx = 683.0
-    cy = 88.0
+    cx = 546.4000244140625
+    cy = 70.4000015258789
     output = "eDP-1"
-    placement_height = 0.0
-    placement_width = 0.0
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = 0.0
     type = "clock"
 
@@ -190,11 +194,11 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-0000000000000003]
     box_height = 0.0
     box_width = 0.0
-    cx = 683.0
-    cy = 320.0
+    cx = 546.4000244140625
+    cy = 256.0
     output = "eDP-1"
-    placement_height = 0.0
-    placement_width = 0.0
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = 0.0
     type = "sticker"
 
@@ -206,11 +210,11 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-0000000000000004]
     box_height = 48.0
     box_width = 128.0
-    cx = 683.0
-    cy = 440.0
+    cx = 546.4000244140625
+    cy = 352.0
     output = "eDP-1"
-    placement_height = 0.0
-    placement_width = 0.0
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = 0.0
     type = "label"
 
@@ -224,22 +228,22 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-0000000000000005]
     box_height = 448.0
     box_width = 672.0
-    cx = 683.0
-    cy = 320.0
+    cx = 546.4000244140625
+    cy = 256.0
     output = "eDP-1"
-    placement_height = 0.0
-    placement_width = 0.0
+    placement_height = 864.0
+    placement_width = 1536.0
     rotation = 0.0
     type = "fancy_audio_visualizer"
 
         [lockscreen_widgets.widget.lockscreen-widget-0000000000000005.settings]
         background = false
-        bloom_intensity = 0.70000000000000007
-        inner_diameter = 0.65000000000000002
-        rotation_speed = 0.20000000000000001
+        bloom_intensity = 0.7000000000000001
+        inner_diameter = 0.65
+        rotation_speed = 0.2
         sensitivity = 1.3
         visualization_mode = "wave"
-        wave_thickness = 0.69999999999999996
+        wave_thickness = 0.7
 
 [nightlight]
 enabled = true
@@ -269,7 +273,7 @@ password_style = "random"
 polkit_agent = true
 screen_time_enabled = true
 show_location = false
-ui_scale = 0.80000000447034836
+ui_scale = 0.8000000044703484
 
     [shell.animation]
     enabled = true
@@ -338,7 +342,7 @@ ui_scale = 0.80000000447034836
         variant = "destructive"
 
     [shell.shadow]
-    alpha = 0.87999998033046722
+    alpha = 0.8799999803304672
     direction = "center"
 
 [theme]
@@ -361,16 +365,16 @@ transition_on_startup = true
     enabled = true
 
     [wallpaper.default]
-    path = "/home/nevil/Pictures/Wallpapers/Anime Wallpapers/Wallpapers/bg123.png"
+    path = "/home/nevil/Pictures/Wallpapers/SleepyCat/Wallpapers/Frame 115.png"
 
     [wallpaper.last]
-    path = "/home/nevil/Pictures/Wallpapers/Anime Wallpapers/Wallpapers/bg123.png"
+    path = "/home/nevil/Pictures/Wallpapers/SleepyCat/Wallpapers/Frame 115.png"
 
     [wallpaper.monitors.eDP-1]
-    path = "~/Pictures/Wallpapers/noctara-wall.png"
+    path = "/home/nevil/Pictures/Wallpapers/SleepyCat/Wallpapers/Frame 115.png"
 
     [wallpaper.monitors.eDP-2]
-    path = "/home/nevil/Pictures/Wallpapers/Anime Wallpapers/Wallpapers/bg123.png"
+    path = "/home/nevil/Pictures/Wallpapers/SleepyCat/Wallpapers/Frame 115.png"
 
 [widget.bar]
 show_idle_on_horizontal = false
@@ -394,7 +398,7 @@ color = "primary"
 custom_image_colorize = true
 glyph = "navigation-filled"
 icon_color = "primary"
-scale = 1.1000000000000001
+scale = 1.1
 
 [widget.launcher]
 anchor = true

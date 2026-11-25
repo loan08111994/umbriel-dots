@@ -18,6 +18,7 @@
 |---|---|
 | **Umbriel** + Noctalia v5 | Compositor + shell. Noctalia templates recolor kitty, btop, cava, GTK/Qt, starship, Hyprland, Niri; Umbriel's own appearance (borders/blur) lives in `configs/umbriel/config.toml` |
 | **Spicetify** | Spotify follows the Noctalia palette; CLI from AUR (`spicetify-cli` + `nodejs`), extension `noctalia.js` installed by Noctalia's template |
+| **Niri / Hyprland / Mango** | Configs only (`configs/{niri,hypr,mango}`), synced and kept color-matched by Noctalia. The compositors are **not** installed by `install.sh` — optional profiles if you switch sessions |
 | **qylock** lockscreen + SDDM | `Mod+Alt+L` lockscreen; SDDM login uses the **same qylock theme** (theme tracked in `configs/qylock/theme`, currently `R1999_1`) |
 | **MikuPlymouth** | Miku boot splash with rotating clips (`miku-rotate.timer` rotates all 37 clips) |
 | **fcitx5 + Lotus** | Vietnamese input, Wayland-native — see section below |
@@ -74,6 +75,7 @@ sudo cp boot/limine/limine-splash.png /boot/limine-splash.png
 ```
 configs/          # live configs, mirrored from ~/.config (+ zsh/bash in $HOME)
 configs/qylock/theme   # chosen lockscreen/SDDM theme (single source of truth)
+configs/{hypr,mango,niri}  # optional compositor profiles (configs only, no packages)
 wallpapers/       # logos + pfps (CozyPixels 1.9GB downloaded by install.sh)
 external/         # submodules: qylock, MikuPlymouth, catppuccin-limine
 fonts/qylock/     # fonts upstream doesn't track — patched in by install.sh

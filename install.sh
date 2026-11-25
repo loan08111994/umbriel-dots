@@ -120,6 +120,9 @@ readonly CONFIG_ITEMS=(
     gtk-3.0
     gtk-4.0
     spicetify
+    hypr
+    mango
+    niri
 )
 
 # --- Sanity checks ---

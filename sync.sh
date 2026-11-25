@@ -47,6 +47,9 @@ readonly ITEMS=(
     gtk-3.0
     gtk-4.0
     spicetify
+    hypr
+    mango
+    niri
 )
 
 # File lẻ: "nguồn:đích"

@@ -31,7 +31,7 @@ width_text = "24"
 calendar_credentials_v1 = true
 
 [theme_templates]
-applied_builtin_ids = "btop cava foot gtk3 gtk4 kcolorscheme kitty qt starship"
+applied_builtin_ids = "btop cava foot gtk3 gtk4 hyprland kcolorscheme kitty niri qt starship"
 applied_community_ids = "fuzzel libreoffice neovim obs obsidian spicetify spicetify-noctalia starship steam vscode yazi zed zen-browser"
 
 [wallpaper_panel]

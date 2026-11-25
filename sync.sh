@@ -83,7 +83,7 @@ command -v rsync >/dev/null || { echo "Missing: rsync" >&2; exit 1; }
 log "Mirroring live configs vào repo..."
 for item in "${ITEMS[@]}"; do
     if [ -d "$LIVE_CONFIG/$item" ]; then
-        rsync -a --delete "$LIVE_CONFIG/$item/" "$CONFIGS_DIR/$item/"
+        rsync -a --delete --exclude='*.save' "$LIVE_CONFIG/$item/" "$CONFIGS_DIR/$item/"
     else
         echo "  (bỏ qua — không có $LIVE_CONFIG/$item)"
     fi
